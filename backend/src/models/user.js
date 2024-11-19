@@ -3,11 +3,7 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 const userSchema = new mongoose.Schema(
   {
-    firstName: {
-      type: String,
-      required: true,
-    },
-    lastName: {
+    FullName: {
       type: String,
       required: true,
     },
@@ -27,11 +23,6 @@ const userSchema = new mongoose.Schema(
     department: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Department",
-    },
-    rollNo: {
-      type: String,
-      required: true,
-      unique: true,
     },
     gender: {
       type: String,
