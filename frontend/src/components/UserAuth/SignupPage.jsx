@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
-  FormDescription,
+  // FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -19,7 +19,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-// import { toast } from "@/components/ui/use-toast";
+import axios from "axios";
+import { toast } from "../../hooks/use-toast.js";
+import LoginPage from "./LoginPage.jsx";
+import { useNavigate } from "react-router-dom";
+
+import { UserContext } from "../../UserContext";
+import { useContext } from "react";
 
 const formSchema = z.object({
   fullName: z.string().min(2, {
@@ -43,6 +49,10 @@ const formSchema = z.object({
 });
 
 export default function SignupPage() {
+  const naviagte = useNavigate();
+
+  const { setUser } = useContext(UserContext);
+
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -55,17 +65,30 @@ export default function SignupPage() {
     },
   });
 
-  function onSubmit(values) {
-    toast({
-      title: "You submitted the following values:",
-      description: (
-        <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-          <code className="text-white">{JSON.stringify(values, null, 2)}</code>
-        </pre>
-      ),
-    });
-    // Here you would typically send the form data to your backend
-    console.log(values);
+  async function onSubmit(values) {
+    try {
+      const { data } = await axios.post(
+        "/api/users/signup",
+        { ...values },
+        { withCredentials: true }
+      );
+      // console.log(data);
+      // console.log(values);
+      if (data.success) {
+        toast({
+          title: data.message,
+        });
+        setUser(data.data);
+        naviagte("/");
+      } else {
+        toast({
+          variant: "destructive",
+          title: data.message,
+        });
+      }
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   return (
@@ -147,9 +170,13 @@ export default function SignupPage() {
                     </FormControl>
                     <SelectContent>
                       <SelectItem value="cs">Computer Science</SelectItem>
-                      <SelectItem value="ee">Electrical Engineering</SelectItem>
-                      <SelectItem value="me">Mechanical Engineering</SelectItem>
-                      {/* Add more departments as needed */}
+                      <SelectItem value="itm">ITM</SelectItem>
+                      <SelectItem value="phy">Physics</SelectItem>
+                      <SelectItem value="chem">Chemestry</SelectItem>
+                      <SelectItem value="math">Mathematics</SelectItem>
+                      <SelectItem value="bot">Botany</SelectItem>
+                      <SelectItem value="zoo">Zoology</SelectItem>
+                      <SelectItem value="ele">Electronics</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -186,6 +213,10 @@ export default function SignupPage() {
             </Button>
           </form>
         </Form>
+        <p className="text-sm text-muted-foreground">
+          Already have an account?
+          <LoginPage btnType="link" />
+        </p>
       </div>
     </div>
   );

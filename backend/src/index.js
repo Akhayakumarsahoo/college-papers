@@ -5,10 +5,10 @@ import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import mongoose from "mongoose";
-import router from "./routes/index.js";
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+const MONGO_URL = process.env.MONGO_URL;
 
 (async () => {
   try {
@@ -28,5 +28,15 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static("public"));
 app.use(cookieParser());
-app.use(cors());
-app.use("/", router);
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true,
+  })
+);
+
+// Routers
+import userRouter from "./routes/user.js";
+
+app.use("/api/users", userRouter);

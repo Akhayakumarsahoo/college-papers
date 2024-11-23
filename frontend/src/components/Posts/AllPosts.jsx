@@ -165,7 +165,8 @@ export default function PostsPage() {
             </Sheet>
             <Button asChild>
               <Link to="/create">
-                <Plus className=" lg:mr-2 h-4 w-4" /> Create New Post
+                <Plus className=" lg:mr-2 h-4 w-4" />
+                Create Post
               </Link>
             </Button>
           </div>

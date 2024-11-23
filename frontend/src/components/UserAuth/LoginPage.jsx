@@ -21,7 +21,11 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-// import { toast } from "@/components/ui/use-toast";
+import { toast } from "../../hooks/use-toast.js";
+import axios from "axios";
+
+import { useContext } from "react";
+import { UserContext } from "../../UserContext";
 
 const formSchema = z.object({
   email: z.string().email({
@@ -32,7 +36,8 @@ const formSchema = z.object({
   }),
 });
 
-export default function LoginPage() {
+export default function LoginPage({ btnType }) {
+  const { setUser } = useContext(UserContext);
   const [open, setOpen] = React.useState(false);
 
   const form = useForm({
@@ -43,24 +48,41 @@ export default function LoginPage() {
     },
   });
 
-  function onSubmit(values) {
-    // Here you would typically send the login request to your backend
-    console.log(values);
-    toast({
-      title: "Login Attempt",
-      description: "Login functionality is not implemented in this demo.",
-    });
-    setOpen(false);
+  async function onSubmit(values) {
+    try {
+      const { data } = await axios.post(
+        "/api/users/login",
+        {
+          ...values,
+        },
+        { withCredentials: true }
+      );
+      // console.log(data.data);
+      if (data.success) {
+        toast({
+          title: data.message,
+        });
+        setOpen(false);
+        setUser(data.data);
+      } else {
+        toast({
+          variant: "destructive",
+          title: data.message,
+        });
+      }
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button>Log In</Button>
+        <Button variant={`${btnType}`}>Login</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Log In</DialogTitle>
+          <DialogTitle>Login</DialogTitle>
           <DialogDescription>
             Enter your credentials to access your account.
           </DialogDescription>

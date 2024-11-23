@@ -3,31 +3,32 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 const userSchema = new mongoose.Schema(
   {
-    FullName: {
+    fullName: {
       type: String,
-      required: true,
+      required: [true, "Full name is required"],
     },
-    gmail: {
+    email: {
       type: String,
-      required: true,
+      required: [true, "Email is required"],
       unique: true,
     },
     password: {
       type: String,
-      required: true,
+      required: [true, "Password is required"],
     },
     batch: {
       type: String,
-      required: true,
+      required: [true, "Batch is required"],
     },
     department: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Department",
+      type: String,
+      enum: ["phy", "chem", "math", "bot", "zoo", "ele", "cs", "itm"],
+      required: [true, "Department is required"],
     },
     gender: {
       type: String,
       enum: ["male", "female", "other"],
-      required: true,
+      required: [true, "Gender is required"],
     },
     refreshToken: {
       type: String,
@@ -50,9 +51,10 @@ userSchema.methods.generateAccessToken = function () {
   return jwt.sign(
     {
       _id: this._id,
-      gmail: this.gmail,
+      fullName: this.fullName,
+      email: this.email,
+      batch: this.batch,
       department: this.department,
-      rollNo: this.rollNo,
     },
     process.env.ACCESS_TOKEN_SECRET,
     {
@@ -74,4 +76,4 @@ userSchema.methods.generateRefreshToken = function () {
 };
 
 const User = mongoose.model("User", userSchema);
-export default User;
+export { User };

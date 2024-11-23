@@ -10,8 +10,30 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Link } from "react-router-dom";
 import LoginPage from "../UserAuth/LoginPage";
+import LogoutPage from "../UserAuth/LogoutPage";
+import { useContext, useEffect } from "react";
+import axios from "axios";
+import { UserContext } from "../../UserContext";
+import { toast } from "@/hooks/use-toast";
 
 export default function Navbar() {
+  const { user, setUser } = useContext(UserContext);
+  useEffect(() => {
+    const fetchUser = async () => {
+      const { data } = await axios.post("/api/users/refresh-token", {
+        withCredentials: true,
+      });
+      console.log(data.data);
+
+      if (data.success) {
+        toast({
+          title: `Welcome back ${data.data.user.fullName} 👋`,
+        });
+      }
+    };
+    fetchUser();
+  }, [user, setUser]);
+
   return (
     <header className="px-4 lg:px-6 h-14 flex items-center border-b sticky top-0 z-50 bg-background ">
       <Link to="/" className="flex items-center justify-center">
@@ -21,12 +43,14 @@ export default function Navbar() {
         </span>
       </Link>
       <nav className="ml-auto flex items-center gap-4 sm:gap-6">
-        <Link to="/signup">
-          <Button variant="outline" size="sm">
-            Sign Up
-          </Button>
-        </Link>
-        <LoginPage />
+        {!user && (
+          <Link to="/signup">
+            <Button variant="outline" size="sm">
+              Sign Up
+            </Button>
+          </Link>
+        )}
+        {!user && <LoginPage btnType="" />}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon">
@@ -35,9 +59,24 @@ export default function Navbar() {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Profile</DropdownMenuLabel>
+            <DropdownMenuLabel>
+              {user?.fullName || "New User"}
+            </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>Log out</DropdownMenuItem>
+            {user && (
+              <DropdownMenuItem>
+                <Link to="/user/1">Profile</Link>
+              </DropdownMenuItem>
+            )}
+            {user && (
+              <DropdownMenuItem
+                onSelect={(event) => {
+                  event.preventDefault();
+                }}
+              >
+                <LogoutPage btnType={"links"} />
+              </DropdownMenuItem>
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
       </nav>

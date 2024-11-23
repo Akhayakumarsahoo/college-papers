@@ -35,7 +35,7 @@ const departments = [
   },
   {
     value: "cs",
-    label: "CS",
+    label: "Computer Science",
   },
   {
     value: "itm",

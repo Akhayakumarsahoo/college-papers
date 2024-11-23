@@ -26,7 +26,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
-// import { toast } from "@/components/ui/use-toast";
+import { toast } from "../hooks/use-toast.js";
+import LogoutPage from "./UserAuth/LogoutPage.jsx";
 
 const formSchema = z.object({
   name: z.string().min(2, {
@@ -194,9 +195,13 @@ export default function ProfilePage() {
                       </p>
                     </div>
                   </div>
-                  <Button className="mt-4" onClick={() => setIsEditing(true)}>
+                  <Button
+                    className="mt-4 mr-5"
+                    onClick={() => setIsEditing(true)}
+                  >
                     Edit Profile
                   </Button>
+                  <LogoutPage btnType="outline" />
                 </>
               )}
             </CardContent>
