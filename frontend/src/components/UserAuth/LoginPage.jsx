@@ -23,9 +23,9 @@ import {
 import { Input } from "@/components/ui/input";
 import { toast } from "../../hooks/use-toast.js";
 import axios from "axios";
-
+import { useNavigate } from "react-router-dom";
 import { useContext } from "react";
-import { UserContext } from "../../UserContext";
+import { GeneralContext } from "../../GeneralContext.jsx";
 
 const formSchema = z.object({
   email: z.string().email({
@@ -36,8 +36,9 @@ const formSchema = z.object({
   }),
 });
 
-export default function LoginPage({ btnType }) {
-  const { setUser } = useContext(UserContext);
+export default function LoginPage() {
+  const navigate = useNavigate();
+  const { setUser } = useContext(GeneralContext);
   const [open, setOpen] = React.useState(false);
 
   const form = useForm({
@@ -59,11 +60,12 @@ export default function LoginPage({ btnType }) {
       );
       // console.log(data.data);
       if (data.success) {
+        setUser(data.data);
         toast({
           title: data.message,
         });
         setOpen(false);
-        setUser(data.data);
+        navigate("/");
       } else {
         toast({
           variant: "destructive",
@@ -72,14 +74,17 @@ export default function LoginPage({ btnType }) {
       }
     } catch (error) {
       console.log(error);
+      toast({
+        variant: "destructive",
+        title: "Something went wrong. Please try again later.",
+      });
+      setOpen(false);
     }
   }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant={`${btnType}`}>Login</Button>
-      </DialogTrigger>
+      <DialogTrigger>Login</DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Login</DialogTitle>

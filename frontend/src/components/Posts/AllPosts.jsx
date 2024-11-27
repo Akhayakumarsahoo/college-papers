@@ -1,12 +1,21 @@
-import { useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Search, Plus, ChevronDown, Filter } from "lucide-react";
+import {
+  Search,
+  Plus,
+  ChevronDown,
+  Filter,
+  // Eye,
+  // ThumbsUp,
+  User,
+  Calendar,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   Card,
   CardContent,
-  CardFooter,
+  // CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -26,38 +35,48 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { Checkbox } from "@/components/ui/checkbox";
+import moment from "moment";
+import axios from "axios";
+import { toast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
+import { GeneralContext } from "../../GeneralContext";
 
-// Mock data for posts
-const posts = [
-  {
-    id: 1,
-    title: "Introduction to Computer Science",
-    postType: "Notes",
-    department: "Computer Science",
-    semester: "Fall 2023",
-    subject: "CS101",
-    preview:
-      "This is a detailed introduction to the field of computer science...",
-    image: "/placeholder.svg?height=100&width=200",
-  },
-  // Add more mock posts as needed
-];
-
-const postTypes = ["Notes", "Exam", "Essay"];
-const departments = [
-  "Computer Science",
-  "Electrical Engineering",
-  "Mechanical Engineering",
-];
-const semesters = ["1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th"];
-
-export default function PostsPage() {
+export default function AllPosts() {
+  const navigate = useNavigate();
+  const { user, departments, postTypes, semesters } =
+    useContext(GeneralContext);
+  const [posts, setPosts] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [filters, setFilters] = useState({
     postType: [],
     department: [],
     semester: [],
   });
+
+  useEffect(() => {
+    const fetchPosts = async () => {
+      try {
+        const { data } = await axios.get("/api/posts");
+        setPosts(data.data);
+      } catch (error) {
+        console.error("Error fetching posts:", error);
+      }
+    };
+
+    fetchPosts();
+  }, []);
+
+  const onPostBtnClick = () => {
+    if (!user) {
+      navigate("/signup");
+      toast({
+        title: "Please signup to create a post",
+        variant: "destructive",
+      });
+    } else {
+      navigate("/create");
+    }
+  };
 
   const handleFilterChange = (category, item) => {
     setFilters((prevFilters) => ({
@@ -109,8 +128,6 @@ export default function PostsPage() {
 
   const FilterSidebar = () => (
     <div className="space-y-4">
-      <FilterSection title="Post Type" items={postTypes} category="postType" />
-      <Separator />
       <FilterSection
         title="Department"
         items={departments}
@@ -118,6 +135,8 @@ export default function PostsPage() {
       />
       <Separator />
       <FilterSection title="Semester" items={semesters} category="semester" />
+      <Separator />
+      <FilterSection title="Post Type" items={postTypes} category="postType" />
     </div>
   );
 
@@ -125,8 +144,11 @@ export default function PostsPage() {
     <div className="flex min-h-screen bg-background">
       {/* Desktop Sidebar */}
       <div className="hidden lg:block w-72 shrink-0 border-r">
-        <ScrollArea className="h-screen py-6 pr-6 pl-8">
-          <FilterSidebar />
+        <ScrollArea className="h-[calc(100vh-56px)]">
+          <div className="h-screen py-6 pr-6 pl-8">
+            <h1 className="text-2xl font-bold text-center mb-5">Filters</h1>
+            <FilterSidebar />
+          </div>
         </ScrollArea>
       </div>
 
@@ -134,40 +156,43 @@ export default function PostsPage() {
       <div className="flex-1">
         {/* Top Navigation */}
         <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-          <div className="flex h-14 items-center px-6 gap-4">
-            <div className="flex-1 flex items-center space-x-4">
-              <div className="relative w-full max-w-sm">
-                <Search className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  type="search"
-                  placeholder="Search posts..."
-                  className="pl-8 w-full"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-              </div>
-            </div>
+          <div className="flex h-14 items-center px-4 lg:px-6 gap-2">
+            <div className="flex-1 flex items-center"></div>
             {/* Mobile Filter Button */}
             <Sheet>
               <SheetTrigger asChild>
-                <Button variant="outline" size="icon" className="lg:hidden">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="lg:hidden w-16"
+                >
                   <Filter className="h-4 w-4" />
                 </Button>
               </SheetTrigger>
               <SheetContent side="left">
                 <SheetHeader>
-                  <SheetTitle>Filters</SheetTitle>
+                  <SheetTitle className="text-2xl font-bold">
+                    Filters
+                  </SheetTitle>
                 </SheetHeader>
                 <ScrollArea className="h-[calc(100vh-8rem)] pr-6">
                   <FilterSidebar />
                 </ScrollArea>
               </SheetContent>
             </Sheet>
-            <Button asChild>
-              <Link to="/create">
-                <Plus className=" lg:mr-2 h-4 w-4" />
-                Create Post
-              </Link>
+            <div className="relative w-full max-w-sm">
+              <Search className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                type="search"
+                placeholder="Search posts..."
+                className="pl-8 w-full"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+            <Button onClick={onPostBtnClick}>
+              <Plus className=" lg:mr-2 h-4 w-4" />
+              Post
             </Button>
           </div>
         </header>
@@ -176,27 +201,64 @@ export default function PostsPage() {
         <main className="flex-1 p-6">
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {filteredPosts.map((post) => (
-              <Link key={post.id} to={`${post.id}`}>
+              <Link key={post._id} to={`${post._id}`}>
                 <Card className="flex flex-col">
                   <CardHeader>
-                    <img
-                      src={post.image}
-                      alt={post.title}
-                      className="w-full h-32 object-cover rounded-md mb-2"
-                    />
+                    <div className="flex justify-center">
+                      {post.file && post.file.fileType && (
+                        <>
+                          {post.file.fileType.startsWith("image") ? (
+                            // Render Image
+                            <img
+                              src={`${post.file.url}?w=150&h=150&crop=thumb`}
+                              alt="File"
+                              loading="lazy"
+                              className=""
+                            />
+                          ) : post.file.fileType.endsWith(".pdf") ? (
+                            // Render PDF in iframe
+                            <image
+                              src={`${post.file.url}`}
+                              // style={{
+                              //   width: "100%",
+                              //   height: "500px",
+                              //   border: "none",
+                              // }}
+                              // title="PDF Viewer"
+                              alt="File"
+                              loading="lazy"
+                            />
+                          ) : (
+                            // Fallback for unsupported file types
+                            <a
+                              href={post.file.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              Download File
+                            </a>
+                          )}
+                        </>
+                      )}
+                    </div>
                     <CardTitle className="line-clamp-2">{post.title}</CardTitle>
+                    <p className="text-xs text-muted-foreground">
+                      Sub: {post.subject}
+                    </p>
+                    <div className="flex items-center text-xs text-muted-foreground">
+                      <User className="h-4 w-4 mr-1" />
+                      {post.owner.fullName}
+                      <Calendar className="h-4 w-4 ml-2 mr-1" />
+                      {moment(post.createdAt).fromNow()}
+                    </div>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-sm text-muted-foreground line-clamp-2 mb-4">
-                      {post.preview}
-                    </p>
                     <div className="flex flex-wrap gap-2">
                       <Badge>{post.postType}</Badge>
-                      <Badge variant="outline">{post.department}</Badge>
-                      <Badge variant="secondary">{post.semester}</Badge>
+                      <Badge variant={"outline"}>{post.department}</Badge>
+                      <Badge variant="secondary">{post.semester} sem</Badge>
                     </div>
                   </CardContent>
-                  <CardFooter className="mt-auto"></CardFooter>
                 </Card>
               </Link>
             ))}

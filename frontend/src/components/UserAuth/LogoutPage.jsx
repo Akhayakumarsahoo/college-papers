@@ -9,24 +9,26 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Button } from "../ui/button";
 import axios from "axios";
 import { toast } from "../../hooks/use-toast.js";
 import { useContext } from "react";
-import { UserContext } from "../../UserContext";
+import { GeneralContext } from "../../GeneralContext.jsx";
+import { LogOut } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
-function LogoutPage({ btnType }) {
-  const { setUser } = useContext(UserContext);
+function LogoutPage() {
+  const navigate = useNavigate();
+  const { setUser } = useContext(GeneralContext);
   const handleLogout = async () => {
     try {
       const { data } = await axios.post("/api/users/logout");
-      //   console.log(data);
 
       if (data.success) {
+        setUser(null);
+        navigate("/");
         toast({
           title: data.message,
         });
-        setUser(null);
       } else {
         toast({
           variant: "destructive",
@@ -40,7 +42,10 @@ function LogoutPage({ btnType }) {
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Button variant={`${btnType}`}>Log out</Button>
+        <span className="flex items-center cursor-pointer text-red-500 gap-2">
+          <LogOut className="h-4 w-4" />
+          Log out
+        </span>
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>

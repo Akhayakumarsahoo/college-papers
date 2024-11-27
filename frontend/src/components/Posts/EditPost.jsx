@@ -1,5 +1,4 @@
-import React from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -22,69 +21,101 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-// import { toast } from "@/components/ui/use-toast";
+import { toast } from "@/hooks/use-toast.js";
+import { useContext, useEffect } from "react";
+import axios from "axios";
+import { GeneralContext } from "@/GeneralContext";
 
 const formSchema = z.object({
-  title: z.string().min(2, {
-    message: "Title must be at least 2 characters.",
-  }),
-  postType: z.string({
-    required_error: "Please select a post type.",
-  }),
-  department: z.string({
-    required_error: "Please select a department.",
-  }),
-  semester: z.string({
-    required_error: "Please select a semester.",
-  }),
-  subject: z.string().min(2, {
-    message: "Subject must be at least 2 characters.",
-  }),
-  content: z.string().min(10, {
-    message: "Content must be at least 10 characters.",
-  }),
+  title: z.string().min(2, { message: "Title must be at least 2 characters." }),
+  description: z.string().optional(),
+  postType: z.string().min(2, { message: "Please select a post type." }),
+  department: z.string().min(2, { message: "Please select a department." }),
+  semester: z.string().min(1, { message: "Please select a semester." }),
+  subject: z
+    .string()
+    .min(2, { message: "Subject must be at least 2 characters." }),
   file: z.any().optional(),
 });
 
-// Mock data for an existing post
-const existingPost = {
-  id: 1,
-  title: "Introduction to Computer Science",
-  postType: "notes",
-  department: "cs",
-  semester: "fall2023",
-  subject: "CS101",
-  content:
-    "This is a detailed introduction to the field of computer science. It covers fundamental concepts such as algorithms, data structures, and programming paradigms.",
-};
-
 export default function EditPost() {
-  // In a real application, you would use this id to fetch the post data
+  const navigate = useNavigate();
+  const { departments, postTypes, semesters } = useContext(GeneralContext);
   const { id } = useParams();
 
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      title: existingPost.title,
-      postType: existingPost.postType,
-      department: existingPost.department,
-      semester: existingPost.semester,
-      subject: existingPost.subject,
-      content: existingPost.content,
+      title: "",
+      description: "",
+      file: {},
+      postType: "",
+      department: "",
+      semester: "",
+      subject: "",
     },
   });
 
-  function onSubmit(values) {
-    toast({
-      title: "You submitted the following values:",
-      description: (
-        <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-          <code className="text-white">{JSON.stringify(values, null, 2)}</code>
-        </pre>
-      ),
-    });
-    // Here you would typically send the updated form data to your backend
-    console.log(values);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const { data } = await axios.get(`/api/posts/${id}/edit`, {
+          withCredentials: true,
+        });
+        // console.log(data);
+
+        if (data.success) {
+          form.reset(data.data);
+        } else {
+          console.log(data.message);
+        }
+      } catch (error) {
+        console.log("Error fetching post", error);
+      }
+    };
+    fetchData();
+  }, [id, form]);
+
+  async function onSubmit(values) {
+    try {
+      const formData = new FormData();
+      formData.append("title", values.title);
+      formData.append("description", values.description || "");
+      formData.append("postType", values.postType);
+      formData.append("department", values.department);
+      formData.append("semester", values.semester);
+      formData.append("subject", values.subject);
+      formData.append("file", values.file[0]);
+
+      const { data } = await axios.put(
+        `http://localhost:9000/api/posts/${id}`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+          withCredentials: true,
+        }
+      );
+
+      if (data.success) {
+        toast({ title: data.message });
+        form.reset();
+        navigate(`/posts/${id}`);
+      } else {
+        toast({
+          title: "Something went wrong.",
+          description: data.message,
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
   }
 
   return (
@@ -113,18 +144,24 @@ export default function EditPost() {
                 <FormItem>
                   <FormLabel>Post Type</FormLabel>
                   <Select
+                    {...field}
                     onValueChange={field.onChange}
                     defaultValue={field.value}
                   >
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select a post type" />
+                        <SelectValue
+                          placeholder="Select a post type"
+                          defaultValue={field.value || "Select a post type"}
+                        />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="notes">Notes</SelectItem>
-                      <SelectItem value="exam">Exam</SelectItem>
-                      <SelectItem value="essay">Essay</SelectItem>
+                      {postTypes.map((postType) => (
+                        <SelectItem key={postType} value={`${postType}`}>
+                          {postType}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -138,18 +175,24 @@ export default function EditPost() {
                 <FormItem>
                   <FormLabel>Department</FormLabel>
                   <Select
+                    {...field}
                     onValueChange={field.onChange}
                     defaultValue={field.value}
                   >
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select a department" />
+                        <SelectValue
+                          placeholder="Select a department"
+                          defaultValue={field.value || "Select a department"}
+                        />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="cs">Computer Science</SelectItem>
-                      <SelectItem value="ee">Electrical Engineering</SelectItem>
-                      <SelectItem value="me">Mechanical Engineering</SelectItem>
+                      {departments.map((department) => (
+                        <SelectItem key={department} value={`${department}`}>
+                          {department}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -163,17 +206,24 @@ export default function EditPost() {
                 <FormItem>
                   <FormLabel>Semester</FormLabel>
                   <Select
+                    {...field}
                     onValueChange={field.onChange}
                     defaultValue={field.value}
                   >
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select a semester" />
+                        <SelectValue
+                          placeholder="Select a semester"
+                          defaultValue={field.value || ""}
+                        />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="fall2023">Fall 2023</SelectItem>
-                      <SelectItem value="spring2024">Spring 2024</SelectItem>
+                      {semesters.map((semester) => (
+                        <SelectItem key={semester} value={`${semester}`}>
+                          {semester}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -195,10 +245,10 @@ export default function EditPost() {
             />
             <FormField
               control={form.control}
-              name="content"
+              name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Content</FormLabel>
+                  <FormLabel>Description</FormLabel>
                   <FormControl>
                     <Textarea className="min-h-[200px]" {...field} />
                   </FormControl>
@@ -215,8 +265,8 @@ export default function EditPost() {
                   <FormControl>
                     <Input
                       type="file"
-                      {...field}
-                      value={field.value?.fileName}
+                      accept="application/pdf, image/*"
+                      onChange={(e) => field.onChange(e.target.files)}
                     />
                   </FormControl>
                   <FormDescription>

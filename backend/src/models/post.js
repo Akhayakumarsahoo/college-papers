@@ -4,41 +4,59 @@ const postSchema = new mongoose.Schema(
   {
     title: {
       type: String,
-      required: true,
+      required: [true, "Title is required"],
+    },
+    description: {
+      type: String,
     },
     owner: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
+      required: [true, "Owner is required"],
     },
     postType: {
       type: String,
-      enum: ["question paper", "syllabus", "notes", "other"],
-      required: true,
+      enum: ["Previous Year Papers", "Notes", "Others"],
+      required: [true, "Post type is required"],
     },
-    fileURL: {
-      type: String,
-      required: true,
+    file: {
+      fileName: {
+        type: String,
+        required: [true, "File name is required"],
+      },
+      fileType: {
+        type: String,
+        required: [true, "File type is required"],
+      },
+      url: {
+        type: String,
+        required: [true, "File URL is required"],
+      },
     },
     department: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: String,
       ref: "Department",
-      required: true,
+      enum: [
+        "Computer Science",
+        "Physics",
+        "Chemistry", // Fixed typo: "Chemestry" -> "Chemistry"
+        "Zoology",
+        "Electronics",
+        "Math",
+        "Botany",
+        "ITM",
+        "Others",
+      ],
+      required: [true, "Department is required"],
     },
     semester: {
       type: String,
-      required: true,
+      enum: ["1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th"],
+      required: [true, "Semester is required"],
     },
     subject: {
       type: String,
-      required: true,
-    },
-    viewCount: {
-      type: Number,
-      default: 0,
-    },
-    likeCount: {
-      type: Number,
-      default: 0,
+      required: [true, "Subject is required"],
     },
   },
   { timestamps: true }

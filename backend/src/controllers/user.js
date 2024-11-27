@@ -71,6 +71,7 @@ const signup = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, "You regestered successfully 🎉", createdUser));
 });
 
+//Login
 const login = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
 
@@ -90,7 +91,6 @@ const login = asyncHandler(async (req, res) => {
   if (!isPasswordCorrect) {
     return res.json(new ApiResponse(401, "Invalid credentials"));
   }
-  // console.log(user);
 
   const loggedInUser = await User.findById(user._id).select(
     "-password -refreshToken"
@@ -110,18 +110,12 @@ const login = asyncHandler(async (req, res) => {
     .status(200)
     .cookie("accessToken", accessToken, options)
     .cookie("refreshToken", refreshToken, options)
-    .json(
-      new ApiResponse(200, "You logged in successfully 🎉", {
-        user: loggedInUser,
-        // accessToken,
-        // refreshToken,
-      })
-    );
+    .json(new ApiResponse(200, "You logged in successfully 🎉", loggedInUser));
 });
 
 const logout = asyncHandler(async (req, res) => {
   await User.findByIdAndUpdate(
-    req.user._id,
+    req.user._conditions._id,
     {
       $unset: { refreshToken: 1 },
     },
@@ -174,9 +168,11 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
       .cookie("accessToken", accessToken, options)
       .cookie("refreshToken", refreshToken, options)
       .json(
-        new ApiResponse(200, "Access token refreshed successfully", {
-          user: loggedInUser,
-        })
+        new ApiResponse(
+          200,
+          "Access token refreshed successfully",
+          loggedInUser
+        )
       );
   } catch (error) {
     return res.json(

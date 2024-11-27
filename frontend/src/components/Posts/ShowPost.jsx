@@ -1,5 +1,15 @@
-import { Link, useParams } from "react-router-dom";
-import { Eye, ThumbsUp, User, Calendar, BookOpen } from "lucide-react";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import {
+  User,
+  Calendar,
+  BookOpen,
+  Download,
+  EllipsisVertical,
+  Pencil,
+  Copy,
+  CopyCheck,
+  Trash,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -9,78 +19,219 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-
-// Mock data for a single post
-const post = {
-  id: 1,
-  title: "Introduction to Computer Science",
-  owner: "Prof. Smith",
-  postType: "Notes",
-  department: "Computer Science",
-  semester: "Fall 2023",
-  subject: "CS101",
-  views: 1200,
-  likes: 45,
-  image: "/placeholder.svg?height=400&width=600",
-  content:
-    "This is a detailed introduction to the field of computer science. It covers fundamental concepts such as algorithms, data structures, and programming paradigms. Students will learn about the history of computing, binary number systems, and basic problem-solving techniques used in computer science.",
-  createdAt: "2023-09-01T12:00:00Z",
-};
+import { useContext, useEffect, useState } from "react";
+import axios from "axios";
+import moment from "moment";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { GeneralContext } from "@/GeneralContext";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "../ui/alert-dialog";
 
 export default function ShowPost() {
-  // In a real application, you would use this id to fetch the post data
-  const { department, id } = useParams();
+  const navigate = useNavigate();
+  const { user } = useContext(GeneralContext);
+  const [post, setPost] = useState({});
+  const { id } = useParams();
+  const [isOwner, setIsOwner] = useState(false);
+  useEffect(() => {
+    const fetchPost = async () => {
+      const { data } = await axios.get(`/api/posts/${id}`, {
+        withCredentials: true,
+      });
+      if (data.success) {
+        setPost(data.data);
+        setIsOwner(data.data.owner._id === user._id);
+      } else {
+        console.log(data.message);
+        setPost({});
+      }
+    };
+    fetchPost();
+  }, []);
+
+  const [copy, setCopy] = useState(false);
+  const copyPath = (e) => {
+    e.preventDefault();
+    navigator.clipboard.writeText(window.location.href).then(() => {
+      setCopy(true);
+      setTimeout(() => {
+        setCopy(false);
+      }, 2000);
+    });
+  };
+
+  const handleDeletePost = async () => {
+    const { data } = await axios.delete(`/api/posts/${id}`, {
+      withCredentials: true,
+    });
+    if (data.success) {
+      setPost({});
+      navigate("/posts");
+    } else {
+      console.log(data.message);
+    }
+  };
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <Card className="max-w-4xl mx-auto">
+    <div className="container mx-auto md:px-4 md:py-4">
+      <Card className="max-w-lg mx-auto">
         <CardHeader>
-          <div className="flex justify-between items-start">
-            <div>
-              <CardTitle className="text-2xl mb-2">{post.title}</CardTitle>
-              <div className="flex items-center text-sm text-muted-foreground mb-2">
-                <User className="h-4 w-4 mr-1" />
-                {post.owner}
-              </div>
-              <div className="flex items-center text-sm text-muted-foreground">
-                <Calendar className="h-4 w-4 mr-1" />
-                {new Date(post.createdAt).toLocaleDateString()}
-              </div>
-            </div>
-            <div className="flex flex-col items-end">
-              <div className="flex items-center text-sm text-muted-foreground mb-1">
-                <Eye className="h-4 w-4 mr-1" />
-                {post.views} views
-              </div>
-              <div className="flex items-center text-sm text-muted-foreground">
-                <ThumbsUp className="h-4 w-4 mr-1" />
-                {post.likes} likes
+          <div className="flex justify-between">
+            <div className="flex flex-col justify-between items-start">
+              <CardTitle className="text-2xl">{post.title}</CardTitle>
+              <div className="flex gap-4">
+                <div className="flex items-center text-sm text-muted-foreground">
+                  <User className="h-4 w-4 mr-1" />
+                  {post.owner?.fullName}
+                </div>
+                <div className="flex items-center text-sm text-muted-foreground">
+                  <Calendar className="h-4 w-4 mr-1" />
+                  {moment(post.createdAt).fromNow()}
+                </div>
               </div>
             </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="link"
+                  className="w-8 h-8 p-0 flex items-center justify-center"
+                  size="icon"
+                >
+                  <EllipsisVertical className="w-6 h-6" />{" "}
+                </Button>
+              </DropdownMenuTrigger>
+
+              <DropdownMenuContent>
+                <DropdownMenuItem asChild onClick={copyPath}>
+                  {!copy ? (
+                    <span>
+                      <Copy />
+                      Copy Link
+                    </span>
+                  ) : (
+                    <span>
+                      <CopyCheck />
+                      Copied!
+                    </span>
+                  )}
+                </DropdownMenuItem>
+                {isOwner && (
+                  <>
+                    <DropdownMenuItem asChild>
+                      <Link to={`edit`}>
+                        <Pencil />
+                        Edit Post
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={(e) => e.preventDefault()}>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <span className="text-red-500 flex items-center gap-2 ">
+                            <Trash className="w-4 h-4" /> Delete
+                          </span>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>
+                              Are you sure you want to delete this post?
+                            </AlertDialogTitle>
+                            <AlertDialogDescription>
+                              This action cannot be undone. This will
+                              permanently delete the post and remove the data
+                              from our servers.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction
+                              className="bg-red-500 text-white"
+                              onClick={() => handleDeletePost(post.id)}
+                            >
+                              Delete
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </DropdownMenuItem>
+                  </>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </CardHeader>
         <CardContent>
-          <img
-            src={post.image}
-            alt={post.title}
-            className="w-full h-64 object-cover rounded-md mb-4"
-          />
-          <div className="flex flex-wrap gap-2 mb-4">
+          {/* Render File */}
+          <div className="flex justify-center border-y">
+            {post.file && post.file.fileType && (
+              <>
+                {post.file.fileType.startsWith("image") ? (
+                  // Render Image
+                  <img
+                    src={`${post.file.url}`}
+                    className="md:w-72"
+                    alt="File"
+                    loading="lazy"
+                  />
+                ) : post.file.fileType.endsWith(".pdf") ? (
+                  // Render PDF in iframe
+                  <iframe
+                    src={`${post.file.url}`}
+                    style={{ width: "100%", height: "500px", border: "none" }}
+                    title="PDF Viewer"
+                    loading="lazy"
+                    alt="File"
+                  />
+                ) : (
+                  // Fallback for unsupported file types
+                  <a
+                    href={post.file.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Download File
+                  </a>
+                )}
+              </>
+            )}
+          </div>
+
+          <div className="flex flex-wrap gap-2 mt-4">
             <Badge>{post.postType}</Badge>
             <Badge variant="secondary">{post.department}</Badge>
-            <Badge variant="outline">{post.semester}</Badge>
+            <Badge variant="outline">{post.semester} sem</Badge>
           </div>
-          <div className="flex items-center text-sm text-muted-foreground mb-4">
+          <div className="flex items-center text-sm text-muted-foreground mt-2">
             <BookOpen className="h-4 w-4 mr-1" />
             Subject: {post.subject}
           </div>
-          <p className="text-gray-700">{post.content}</p>
+          {post.description && (
+            <p className="text-gray-700">{post.description}</p>
+          )}
         </CardContent>
-        <CardFooter className="flex justify-between">
-          <Link to={`edit`}>
-            <Button variant="outline">Edit Post</Button>
-          </Link>
-          <Button>Download</Button>
+        <CardFooter className="flex justify-end">
+          {/* Download Button */}
+          {post.file && post.file.url && (
+            <Button asChild>
+              <a href={post.file.url} download={post.title}>
+                <Download className="h-4 w-4 mr-1" />
+                Download
+              </a>
+            </Button>
+          )}
         </CardFooter>
       </Card>
     </div>

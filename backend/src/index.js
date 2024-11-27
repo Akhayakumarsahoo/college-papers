@@ -38,5 +38,7 @@ app.use(
 
 // Routers
 import userRouter from "./routes/user.js";
+import postsRouter from "./routes/post.js";
 
 app.use("/api/users", userRouter);
+app.use("/api/posts", postsRouter);

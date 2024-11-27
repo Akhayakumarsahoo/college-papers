@@ -44,7 +44,7 @@ const formSchema = z.object({
 // Mock user data
 const user = {
   id: 1,
-  name: "John Doe",
+  name: "Akhaya kumar sahoo",
   email: "john.doe@example.com",
   bio: "Computer Science student passionate about web development and AI.",
   avatar: "/placeholder.svg?height=100&width=100",
