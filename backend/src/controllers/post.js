@@ -1,7 +1,7 @@
 import Post from "../models/post.js";
-import { asyncHandler } from "../utils/asyncHandler.js";
+import asyncHandler from "../utils/asyncHandler.js";
 import uploadOnCloudinary from "../utils/clouldinary.js";
-import { ApiResponse } from "../utils/apiResponse.js";
+import ApiResponse from "../utils/apiResponse.js";
 
 const allPosts = asyncHandler(async (req, res) => {
   const posts = await Post.find().sort({ createdAt: -1 }).populate({
