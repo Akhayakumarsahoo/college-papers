@@ -6,7 +6,7 @@ import {
   updatePost,
   deletePost,
 } from "../controllers/post.js";
-import { isOwner, verifyJWT } from "../middlewares/auth.js";
+import { verifyJWT, isOwner } from "../middlewares/auth.js";
 import { upload } from "../middlewares/multer.js";
 const router = Router();
 

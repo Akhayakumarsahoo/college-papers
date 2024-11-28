@@ -5,7 +5,7 @@ import User from "../models/user.js";
 import ApiResponse from "../utils/apiResponse.js";
 import Post from "../models/post.js";
 
-export const verifyJWT = asyncHandler(async (req, res, next) => {
+const verifyJWT = asyncHandler(async (req, res, next) => {
   try {
     const token =
       req.cookies?.accessToken ||
@@ -34,7 +34,7 @@ export const verifyJWT = asyncHandler(async (req, res, next) => {
   }
 });
 
-export const isOwner = asyncHandler(async (req, res, next) => {
+const isOwner = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
   const post = await Post.findById(id);
   if (!post) {
@@ -47,3 +47,5 @@ export const isOwner = asyncHandler(async (req, res, next) => {
   }
   next();
 });
+
+export { verifyJWT, isOwner };
