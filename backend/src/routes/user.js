@@ -7,7 +7,7 @@ import {
   logout,
   refreshAccessToken,
 } from "../controllers/user.js";
-import { verifyJWT } from "../middlewares/Auth.js";
+import { verifyJWT } from "../middlewares/auth.js";
 
 router.route("/signup").post(signup);
 router.route("/login").post(login);
