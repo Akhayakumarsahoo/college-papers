@@ -1,7 +1,8 @@
-import Navbar from "./components/Layouts/Navbar";
-import Footer from "./components/Layouts/Footer";
+import { useContext, useEffect, Suspense, lazy } from "react";
+import LoadingPage from "./components/LoadingPage";
+const Navbar = lazy(() => import("./components/Layouts/Navbar"));
+const Footer = lazy(() => import("./components/Layouts/Footer"));
 import { Outlet } from "react-router-dom";
-import { useContext, useEffect } from "react";
 import { GeneralContext } from "./GeneralContext";
 import axios from "axios";
 
@@ -26,9 +27,11 @@ function App() {
 
   return (
     <>
-      <Navbar />
-      <Outlet />
-      <Footer />
+      <Suspense fallback={<LoadingPage />}>
+        <Navbar />
+        <Outlet />
+        <Footer />
+      </Suspense>
     </>
   );
 }

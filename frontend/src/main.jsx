@@ -1,4 +1,4 @@
-import { StrictMode, Suspense } from "react";
+import { StrictMode, lazy, Suspense } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
 import {
@@ -8,18 +8,20 @@ import {
   Route,
 } from "react-router-dom";
 
-import App from "./App.jsx";
-import LandingPage from "./components/HomePage";
-import Signup from "./components/UserAuth/SignupPage";
-import Profile from "./components/ProfilePage";
-import ShowPost from "./components/Posts/ShowPost";
-import AllPosts from "./components/Posts/AllPosts";
-import EditPost from "./components/Posts/EditPost";
-import CreatePost from "./components/Posts/CreatePost";
+import LoadingPage from "./components/LoadingPage";
+import NotFoundPage from "./components/NotFoundPage";
+
+import App from "./App";
+const LandingPage = lazy(() => import("./components/HomePage"));
+const Signup = lazy(() => import("./components/UserAuth/SignupPage"));
+const Profile = lazy(() => import("./components/ProfilePage"));
+const ShowPost = lazy(() => import("./components/Posts/ShowPost"));
+const AllPosts = lazy(() => import("./components/Posts/AllPosts"));
+const EditPost = lazy(() => import("./components/Posts/EditPost"));
+const CreatePost = lazy(() => import("./components/Posts/CreatePost"));
+
 import { GeneralContextProvider } from "./GeneralContext";
 import { Toaster } from "@/components/ui/toaster";
-import NotFoundPage from "./components/NotFoundPage";
-import LoadingPage from "./LoadingPage";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
