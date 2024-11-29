@@ -4,30 +4,26 @@ import { Outlet } from "react-router-dom";
 import { useContext, useEffect } from "react";
 import { GeneralContext } from "./GeneralContext";
 import axios from "axios";
-// import { toast } from "./hooks/use-toast";
 
 function App() {
   const { setUser } = useContext(GeneralContext);
 
   useEffect(() => {
-    try {
-      const fetchUser = async () => {
-        const { data } = await axios.post("/api/users/refresh-token", {
-          withCredentials: true,
-        });
-        // console.log(data);
-
-        if (data.success) {
+    const fetchUser = async () => {
+      await axios
+        .post("/api/users/refresh-token")
+        .then(({ data }) => {
           setUser(data.data);
-        } else {
+        })
+        .catch(() => {
           setUser(null);
-        }
-      };
-      fetchUser();
-    } catch (error) {
-      console.log(error);
-    }
-  }, []);
+          // console.error("Error fetching user:", err);
+        });
+    };
+
+    fetchUser();
+  }, [setUser]);
+
   return (
     <>
       <Navbar />

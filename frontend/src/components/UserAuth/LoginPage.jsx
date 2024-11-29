@@ -22,10 +22,10 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { toast } from "../../hooks/use-toast.js";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useContext } from "react";
 import { GeneralContext } from "../../GeneralContext.jsx";
+import AxiosInstance from "@/AxiosInstance.js";
 
 const formSchema = z.object({
   email: z.string().email({
@@ -50,36 +50,18 @@ export default function LoginPage() {
   });
 
   async function onSubmit(values) {
-    try {
-      const { data } = await axios.post(
-        "/api/users/login",
-        {
-          ...values,
-        },
-        { withCredentials: true }
-      );
-      // console.log(data.data);
-      if (data.success) {
+    await AxiosInstance.post("/users/login", {
+      ...values,
+    })
+      .then(({ data }) => {
         setUser(data.data);
         toast({
           title: data.message,
         });
         setOpen(false);
         navigate("/");
-      } else {
-        toast({
-          variant: "destructive",
-          title: data.message,
-        });
-      }
-    } catch (error) {
-      console.log(error);
-      toast({
-        variant: "destructive",
-        title: "Something went wrong. Please try again later.",
-      });
-      setOpen(false);
-    }
+      })
+      .catch((error) => console.error("Error logging in", error));
   }
 
   return (

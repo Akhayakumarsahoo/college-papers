@@ -1,49 +1,46 @@
-// import { ApiError } from "../utils/apiError.js";
+import ApiError from "../utils/apiError.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import jwt from "jsonwebtoken";
 import User from "../models/user.js";
-import ApiResponse from "../utils/apiResponse.js";
+// import ApiResponse from "../utils/apiResponse.js";
 import Post from "../models/post.js";
 
-const verifyJWT = asyncHandler(async (req, res, next) => {
+const verifyJWT = asyncHandler(async (req, _, next) => {
   try {
     const token =
       req.cookies?.accessToken ||
-      req.header("Authoration")?.replace("Bearer", "");
-    // console.log(token);
+      req.header("Authorization")?.replace("Bearer ", "");
 
+    // console.log(token);
     if (!token) {
-      return res.json(new ApiResponse(401, "You must login/signup first!"));
+      throw new ApiError(401, "You must logged in first!");
     }
+
     const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
 
-    const user = User.findById(decodedToken._id).select(
+    const user = await User.findById(decodedToken?._id).select(
       "-password -refreshToken"
     );
+
     if (!user) {
-      return res.json(new ApiResponse(401, "Invalid Access Token!"));
+      throw new ApiError(401, "Invalid Access Token");
     }
-    // console.log(user._conditions._id);
 
     req.user = user;
     next();
   } catch (error) {
-    return res.json(
-      new ApiResponse(401, error?.message || "Invalid Access Token!")
-    );
+    throw new ApiError(401, error?.message || "Invalid access token");
   }
 });
 
-const isOwner = asyncHandler(async (req, res, next) => {
+const isOwner = asyncHandler(async (req, _, next) => {
   const { id } = req.params;
   const post = await Post.findById(id);
   if (!post) {
-    return new ApiResponse(404, "Post not found!");
+    throw new ApiError(404, "Post not found!");
   }
-  if (!req.user._id === post.owner) {
-    return res.json(
-      new ApiResponse(403, "You are not authorized to perform this action!")
-    );
+  if (req.user._id.toString() !== post.owner.toString()) {
+    throw new ApiError(403, "You are not authorized to perform this action!");
   }
   next();
 });

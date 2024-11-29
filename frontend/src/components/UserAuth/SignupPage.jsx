@@ -19,13 +19,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import axios from "axios";
 import { toast } from "../../hooks/use-toast.js";
 import LoginPage from "./LoginPage.jsx";
 import { useNavigate } from "react-router-dom";
 
 import { GeneralContext } from "../../GeneralContext.jsx";
 import { useContext } from "react";
+import AxiosInstance from "@/AxiosInstance.js";
 
 const formSchema = z.object({
   fullName: z.string().min(2, {
@@ -66,27 +66,15 @@ export default function SignupPage() {
   });
 
   async function onSubmit(values) {
-    try {
-      const { data } = await axios.post(
-        "/api/users/signup",
-        { ...values },
-        { withCredentials: true }
-      );
-      if (data.success) {
+    await AxiosInstance.post("/users/signup", { ...values })
+      .then(({ data }) => {
         toast({
           title: data.message,
         });
         setUser(data.data);
         naviagte("/");
-      } else {
-        toast({
-          variant: "destructive",
-          title: data.message,
-        });
-      }
-    } catch (error) {
-      console.log(error);
-    }
+      })
+      .catch((error) => console.error("Error signing up", error));
   }
 
   return (

@@ -1,4 +1,4 @@
-import { StrictMode } from "react";
+import { StrictMode, Suspense } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
 import {
@@ -19,22 +19,76 @@ import CreatePost from "./components/Posts/CreatePost";
 import { GeneralContextProvider } from "./GeneralContext";
 import { Toaster } from "@/components/ui/toaster";
 import NotFoundPage from "./components/NotFoundPage";
+import LoadingPage from "./LoadingPage";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
     <>
       <Route path="/" element={<App />}>
-        <Route path="" element={<LandingPage />} />
-        <Route path="posts" element={<AllPosts />} />
         <Route
-          path="posts/:id"
-          element={<ShowPost />}
+          path=""
+          element={
+            <Suspense fallback={<LoadingPage />}>
+              <LandingPage />
+            </Suspense>
+          }
           errorElement={<NotFoundPage />}
         />
-        <Route path="posts/:id/edit" element={<EditPost />} />
-        <Route path="create" element={<CreatePost />} />
-        <Route path="signup" element={<Signup />} />
-        <Route path="user/:userid" element={<Profile />} />
+        <Route
+          path="posts"
+          element={
+            <Suspense fallback={<LoadingPage />}>
+              <AllPosts />
+            </Suspense>
+          }
+          errorElement={<NotFoundPage />}
+        />
+        <Route
+          path="posts/:id"
+          element={
+            <Suspense fallback={<LoadingPage />}>
+              <ShowPost />
+            </Suspense>
+          }
+          errorElement={<NotFoundPage />}
+        />
+        <Route
+          path="posts/:id/edit"
+          element={
+            <Suspense fallback={<LoadingPage />}>
+              <EditPost />
+            </Suspense>
+          }
+          errorElement={<NotFoundPage />}
+        />
+        <Route
+          path="create"
+          element={
+            <Suspense fallback={<LoadingPage />}>
+              <CreatePost />
+            </Suspense>
+          }
+          errorElement={<NotFoundPage />}
+        />
+        <Route
+          path="signup"
+          element={
+            <Suspense fallback={<LoadingPage />}>
+              <Signup />
+            </Suspense>
+          }
+          errorElement={<NotFoundPage />}
+        />
+        <Route
+          path="user/:userid"
+          element={
+            <Suspense fallback={<LoadingPage />}>
+              <Profile />
+            </Suspense>
+          }
+          errorElement={<NotFoundPage />}
+        />
+        <Route path="*" element={<NotFoundPage />} />
       </Route>
     </>
   )

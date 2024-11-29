@@ -23,8 +23,8 @@ import {
 } from "@/components/ui/select";
 import { toast } from "@/hooks/use-toast.js";
 import { useContext, useEffect } from "react";
-import axios from "axios";
 import { GeneralContext } from "@/GeneralContext";
+import AxiosInstance from "@/AxiosInstance";
 
 const formSchema = z.object({
   title: z.string().min(2, { message: "Title must be at least 2 characters." }),
@@ -58,64 +58,41 @@ export default function EditPost() {
 
   useEffect(() => {
     const fetchData = async () => {
-      try {
-        const { data } = await axios.get(`/api/posts/${id}/edit`, {
-          withCredentials: true,
-        });
-        // console.log(data);
-
-        if (data.success) {
+      await AxiosInstance.get(`/posts/${id}/edit`, {
+        withCredentials: true,
+      })
+        .then(({ data }) => {
           form.reset(data.data);
-        } else {
-          console.log(data.message);
-        }
-      } catch (error) {
-        console.log("Error fetching post", error);
-      }
+        })
+        .catch((error) => {
+          navigate(`/posts/${id}`);
+          console.error("Error fetching post", error);
+        });
     };
     fetchData();
-  }, [id, form]);
+  }, [id, form, navigate]);
 
   async function onSubmit(values) {
-    try {
-      const formData = new FormData();
-      formData.append("title", values.title);
-      formData.append("description", values.description || "");
-      formData.append("postType", values.postType);
-      formData.append("department", values.department);
-      formData.append("semester", values.semester);
-      formData.append("subject", values.subject);
-      formData.append("file", values.file[0]);
+    const formData = new FormData();
+    formData.append("title", values.title);
+    formData.append("description", values.description || "");
+    formData.append("postType", values.postType);
+    formData.append("department", values.department);
+    formData.append("semester", values.semester);
+    formData.append("subject", values.subject);
+    formData.append("file", values.file[0]);
 
-      const { data } = await axios.put(
-        `http://localhost:9000/api/posts/${id}`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-          withCredentials: true,
-        }
-      );
-
-      if (data.success) {
+    await AxiosInstance.put(`/posts/${id}`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    })
+      .then(({ data }) => {
         toast({ title: data.message });
         form.reset();
         navigate(`/posts/${id}`);
-      } else {
-        toast({
-          title: "Something went wrong.",
-          description: data.message,
-          variant: "destructive",
-        });
-      }
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
-    }
+      })
+      .catch((error) => console.error("Error updating post", error));
   }
 
   return (

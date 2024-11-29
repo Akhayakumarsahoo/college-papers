@@ -40,6 +40,7 @@ import axios from "axios";
 import { toast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { GeneralContext } from "../../GeneralContext";
+import AxiosInstance from "@/AxiosInstance";
 
 export default function AllPosts() {
   const navigate = useNavigate();
@@ -55,16 +56,14 @@ export default function AllPosts() {
 
   useEffect(() => {
     const fetchPosts = async () => {
-      try {
-        const { data } = await axios.get("/api/posts");
-        setPosts(data.data);
-      } catch (error) {
-        console.error("Error fetching posts:", error);
-      }
+      await AxiosInstance.get("/posts")
+        .then(({ data }) => {
+          setPosts(data.data);
+        })
+        .catch((error) => console.error("Error fetching posts:", error));
     };
-
     fetchPosts();
-  }, []);
+  }, [setPosts, navigate]);
 
   const onPostBtnClick = () => {
     if (!user) {

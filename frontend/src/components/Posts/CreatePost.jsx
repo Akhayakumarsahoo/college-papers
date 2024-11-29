@@ -21,10 +21,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "@/hooks/use-toast.js";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { GeneralContext } from "@/GeneralContext";
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
+import AxiosInstance from "@/AxiosInstance";
 
 // Validation Schema
 const formSchema = z.object({
@@ -40,7 +40,6 @@ const formSchema = z.object({
 });
 
 export default function CreatePost() {
-  const navigate = useNavigate();
   const { postTypes, departments, semesters } = useContext(GeneralContext);
   const form = useForm({
     resolver: zodResolver(formSchema),
@@ -54,47 +53,39 @@ export default function CreatePost() {
       file: null,
     },
   });
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const renderCreatePage = async () => {
+      await AxiosInstance.get("/posts/create").catch((err) => {
+        navigate("/signup");
+        console.error("Error fetching create page", err);
+      });
+    };
+    renderCreatePage();
+  }, [navigate]);
 
   async function onSubmit(values) {
-    try {
-      const formData = new FormData();
-      formData.append("title", values.title);
-      formData.append("description", values.description || "");
-      formData.append("postType", values.postType);
-      formData.append("department", values.department);
-      formData.append("semester", values.semester);
-      formData.append("subject", values.subject);
-      formData.append("file", values.file[0]);
+    const formData = new FormData();
+    formData.append("title", values.title);
+    formData.append("description", values.description || "");
+    formData.append("postType", values.postType);
+    formData.append("department", values.department);
+    formData.append("semester", values.semester);
+    formData.append("subject", values.subject);
+    formData.append("file", values.file[0]);
 
-      const { data } = await axios.post(
-        "http://localhost:9000/api/posts",
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-          withCredentials: true,
-        }
-      );
-
-      if (data.success) {
+    await AxiosInstance.post("/posts", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    })
+      .then(({ data }) => {
         toast({ title: data.message });
         form.reset();
         navigate("/posts");
-      } else {
-        toast({
-          title: "Something went wrong.",
-          description: data.message,
-          variant: "destructive",
-        });
-      }
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
-    }
+      })
+      .catch((error) => console.error("Error creating post", error));
   }
 
   return (

@@ -1,6 +1,7 @@
 import { Router } from "express";
 import {
   allPosts,
+  showCreatePost,
   createPost,
   showPost,
   updatePost,
@@ -14,6 +15,8 @@ router
   .route("/")
   .get(allPosts)
   .post(verifyJWT, upload.single("file"), createPost);
+
+router.route("/create").get(verifyJWT, showCreatePost);
 
 router
   .route("/:id")

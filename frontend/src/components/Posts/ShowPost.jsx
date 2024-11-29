@@ -20,7 +20,6 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useContext, useEffect, useState } from "react";
-import axios from "axios";
 import moment from "moment";
 import {
   DropdownMenu,
@@ -40,6 +39,8 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "../ui/alert-dialog";
+import AxiosInstance from "@/AxiosInstance";
+import NotFoundPage from "../NotFoundPage";
 
 export default function ShowPost() {
   const navigate = useNavigate();
@@ -47,21 +48,21 @@ export default function ShowPost() {
   const [post, setPost] = useState({});
   const { id } = useParams();
   const [isOwner, setIsOwner] = useState(false);
+  const [notFound, setNotFound] = useState(false);
   useEffect(() => {
     const fetchPost = async () => {
-      const { data } = await axios.get(`/api/posts/${id}`, {
-        withCredentials: true,
-      });
-      if (data.success) {
-        setPost(data.data);
-        setIsOwner(data.data.owner._id === user._id);
-      } else {
-        console.log(data.message);
-        setPost({});
-      }
+      await AxiosInstance.get(`/posts/${id}`)
+        .then(({ data }) => {
+          setPost(data.data);
+          setIsOwner(data.data.owner._id === user?._id);
+        })
+        .catch((error) => {
+          setNotFound(true);
+          console.error("Error fetching post", error);
+        });
     };
     fetchPost();
-  }, []);
+  }, [id, user, navigate]);
 
   const [copy, setCopy] = useState(false);
   const copyPath = (e) => {
@@ -75,17 +76,15 @@ export default function ShowPost() {
   };
 
   const handleDeletePost = async () => {
-    const { data } = await axios.delete(`/api/posts/${id}`, {
-      withCredentials: true,
-    });
-    if (data.success) {
-      setPost({});
-      navigate("/posts");
-    } else {
-      console.log(data.message);
-    }
+    await AxiosInstance.delete(`/posts/${id}`)
+      .then(() => {
+        setPost({});
+        navigate("/posts");
+      })
+      .catch((error) => console.log("Error deleting post", error));
   };
 
+  if (notFound) return <NotFoundPage />;
   return (
     <div className="container mx-auto md:px-4 md:py-4">
       <Card className="max-w-lg mx-auto">
