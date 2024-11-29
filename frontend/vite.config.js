@@ -4,7 +4,7 @@ import { defineConfig } from "vite";
 
 export default defineConfig({
   server: {
-    proxy: { "/api": "http://localhost:9000" },
+    proxy: { "/api": "https://college-papers-production.up.railway.app" },
   },
   plugins: [react()],
   resolve: {
