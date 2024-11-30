@@ -4,7 +4,6 @@ const Navbar = lazy(() => import("./components/Layouts/Navbar"));
 const Footer = lazy(() => import("./components/Layouts/Footer"));
 import { Outlet } from "react-router-dom";
 import { GeneralContext } from "./GeneralContext";
-// import axios from "axios";
 import AxiosInstance from "./AxiosInstance";
 
 function App() {
