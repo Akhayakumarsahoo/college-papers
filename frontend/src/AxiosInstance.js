@@ -4,7 +4,7 @@ import { toast } from "@/hooks/use-toast.js";
 const AxiosInstance = axios.create({
   baseURL:
     import.meta.env.MODE === "production"
-      ? import.meta.env.VITE_SERVER_URL + "/api"
+      ? "https://college-papers-production.up.railway.app"
       : "http://localhost:9000/api",
   withCredentials: true,
 });
