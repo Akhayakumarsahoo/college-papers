@@ -2,7 +2,7 @@ import axios from "axios";
 import { toast } from "@/hooks/use-toast.js";
 
 const AxiosInstance = axios.create({
-  baseURL: "/api",
+  baseURL: import.meta.env.SERVER_URL,
   withCredentials: true,
 });
 

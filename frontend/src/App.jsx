@@ -12,7 +12,7 @@ function App() {
   useEffect(() => {
     const fetchUser = async () => {
       await axios
-        .post("/api/users/refresh-token")
+        .post(`${import.meta.env.SERVER_URL}/users/refresh-token`)
         .then(({ data }) => {
           setUser(data.data);
         })
