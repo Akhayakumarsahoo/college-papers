@@ -16,7 +16,7 @@ const MONGO_URL = process.env.MONGO_URL;
       .connect(MONGO_URL)
       .then(() => console.log("MongoDB is connected successfully"));
     app.listen(PORT, () => {
-      console.log(`⚙️  Server is listining to port http://localhost:${PORT}`);
+      console.log(`⚙️  Server is listining to port ${PORT}`);
     });
   } catch (error) {
     console.error("MONGODB connection ERROR", error);

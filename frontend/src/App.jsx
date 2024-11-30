@@ -8,11 +8,12 @@ import axios from "axios";
 
 function App() {
   const { setUser } = useContext(GeneralContext);
+  console.log("VITE_SERVER_URL", import.meta.env.VITE_SERVER_URL);
 
   useEffect(() => {
     const fetchUser = async () => {
       await axios
-        .post(`${import.meta.env.SERVER_URL}/users/refresh-token`)
+        .post(`${import.meta.env.VITE_SERVER_URL}/users/refresh-token`)
         .then(({ data }) => {
           setUser(data.data);
         })
