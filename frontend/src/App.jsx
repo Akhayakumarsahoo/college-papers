@@ -4,16 +4,14 @@ const Navbar = lazy(() => import("./components/Layouts/Navbar"));
 const Footer = lazy(() => import("./components/Layouts/Footer"));
 import { Outlet } from "react-router-dom";
 import { GeneralContext } from "./GeneralContext";
-import axios from "axios";
+// import axios from "axios";
+import AxiosInstance from "./AxiosInstance";
 
 function App() {
   const { setUser } = useContext(GeneralContext);
-  console.log("VITE_SERVER_URL", import.meta.env.VITE_SERVER_URL);
-
   useEffect(() => {
     const fetchUser = async () => {
-      await axios
-        .post(`${import.meta.env.VITE_SERVER_URL}/api/users/refresh-token`)
+      await AxiosInstance.post("/users/refresh-token")
         .then(({ data }) => {
           setUser(data.data);
         })

@@ -36,16 +36,13 @@ import {
 } from "@/components/ui/sheet";
 import { Checkbox } from "@/components/ui/checkbox";
 import moment from "moment";
-import axios from "axios";
-import { toast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { GeneralContext } from "../../GeneralContext";
 import AxiosInstance from "@/AxiosInstance";
 
 export default function AllPosts() {
   const navigate = useNavigate();
-  const { user, departments, postTypes, semesters } =
-    useContext(GeneralContext);
+  const { departments, postTypes, semesters } = useContext(GeneralContext);
   const [posts, setPosts] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [filters, setFilters] = useState({
@@ -64,18 +61,6 @@ export default function AllPosts() {
     };
     fetchPosts();
   }, [setPosts, navigate]);
-
-  const onPostBtnClick = () => {
-    if (!user) {
-      navigate("/signup");
-      toast({
-        title: "Please signup to create a post",
-        variant: "destructive",
-      });
-    } else {
-      navigate("/create");
-    }
-  };
 
   const handleFilterChange = (category, item) => {
     setFilters((prevFilters) => ({
@@ -189,9 +174,11 @@ export default function AllPosts() {
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
-            <Button onClick={onPostBtnClick}>
-              <Plus className=" lg:mr-2 h-4 w-4" />
-              Post
+            <Button asChild>
+              <Link to={"create"}>
+                <Plus className=" lg:mr-2 h-4 w-4" />
+                Post
+              </Link>
             </Button>
           </div>
         </header>

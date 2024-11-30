@@ -64,7 +64,7 @@ const router = createBrowserRouter(
           errorElement={<NotFoundPage />}
         />
         <Route
-          path="create"
+          path="posts/create"
           element={
             <Suspense fallback={<LoadingPage />}>
               <CreatePost />

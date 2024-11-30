@@ -22,10 +22,11 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { toast } from "../../hooks/use-toast.js";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useContext } from "react";
 import { GeneralContext } from "../../GeneralContext.jsx";
 import AxiosInstance from "@/AxiosInstance.js";
+import { LogIn } from "lucide-react";
 
 const formSchema = z.object({
   email: z.string().email({
@@ -66,7 +67,12 @@ export default function LoginPage() {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger>Login</DialogTrigger>
+      <DialogTrigger asChild>
+        <Link className="w-full h-full flex items-center gap-2">
+          <LogIn size={18} />
+          Login
+        </Link>
+      </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Login</DialogTitle>

@@ -3,9 +3,6 @@ import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 
 export default defineConfig({
-  // server: {
-  //   proxy: { "/api": import.meta.env.VITE_SERVER_URL },
-  // },
   plugins: [react()],
   resolve: {
     alias: {

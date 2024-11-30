@@ -13,7 +13,7 @@ const verifyJWT = asyncHandler(async (req, _, next) => {
 
     // console.log(token);
     if (!token) {
-      throw new ApiError(401, "You must logged in first!");
+      throw new ApiError(401, "You are not logged in");
     }
 
     const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);

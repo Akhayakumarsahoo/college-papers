@@ -37,7 +37,6 @@ const showCreatePost = asyncHandler(async (req, res) => {
 const createPost = asyncHandler(async (req, res) => {
   const { title, description, postType, department, semester, subject } =
     req.body;
-
   const cloudFile = await uploadOnCloudinary(req.file.path);
   if (!cloudFile)
     throw new ApiError(500, "Something went wrong while uploading file");
@@ -87,7 +86,7 @@ const updatePost = asyncHandler(async (req, res) => {
   const { title, description, postType, department, semester, subject } =
     req.body;
   if (
-    [title, description, postType, department, semester, subject].some(
+    [title, postType, department, semester, subject].some(
       (field) => field?.trim() === ""
     )
   ) {

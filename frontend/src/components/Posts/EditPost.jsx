@@ -242,6 +242,7 @@ export default function EditPost() {
                   <FormControl>
                     <Input
                       type="file"
+                      multiple
                       accept="application/pdf, image/*"
                       onChange={(e) => field.onChange(e.target.files)}
                     />

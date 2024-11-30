@@ -1,4 +1,4 @@
-import { BookOpen, User } from "lucide-react";
+import { BookOpen, User, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -71,7 +71,11 @@ export default function Navbar() {
             ) : (
               <>
                 <DropdownMenuItem asChild>
-                  <Link to="/signup">Sign Up</Link>
+                  <Link to="/signup" className="flex items-center">
+                    {" "}
+                    <UserPlus />
+                    Sign Up
+                  </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem onSelect={(event) => event.preventDefault()}>
                   <LoginPage />

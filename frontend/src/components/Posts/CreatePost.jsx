@@ -240,6 +240,7 @@ export default function CreatePost() {
                   <FormControl>
                     <Input
                       type="file"
+                      multiple
                       onChange={(e) => field.onChange(e.target.files)}
                       accept="application/pdf, image/*"
                     />
