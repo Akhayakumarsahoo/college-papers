@@ -13,7 +13,7 @@ function App() {
   useEffect(() => {
     const fetchUser = async () => {
       await axios
-        .post(`${import.meta.env.VITE_SERVER_URL}/users/refresh-token`)
+        .post(`${import.meta.env.VITE_SERVER_URL}/api/users/refresh-token`)
         .then(({ data }) => {
           setUser(data.data);
         })
