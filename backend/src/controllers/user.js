@@ -4,10 +4,18 @@ import ApiError from "../utils/apiError.js";
 import ApiResponse from "../utils/apiResponse.js";
 import jwt from "jsonwebtoken";
 
-const cookieOptions = {
+const accessCookieOptions = {
   httpOnly: true,
   secure: process.env.NODE_ENV === "production",
   sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
+  sameSite: "none",
+};
+
+const refreshCookieOptions = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === "production",
+  sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
+  sameSite: "none",
 };
 
 const generateAccessAndRefreshTokens = async (user) => {
@@ -61,8 +69,8 @@ const signup = asyncHandler(async (req, res) => {
 
   return res
     .status(201)
-    .cookie("accessToken", accessToken, cookieOptions)
-    .cookie("refreshToken", refreshToken, cookieOptions)
+    .cookie("accessToken", accessToken, accessCookieOptions)
+    .cookie("refreshToken", refreshToken, refreshCookieOptions)
     .json(new ApiResponse(201, "You regestered successfully 🎉", createdUser));
 });
 
@@ -91,8 +99,8 @@ const login = asyncHandler(async (req, res) => {
   );
   return res
     .status(200)
-    .cookie("accessToken", accessToken, cookieOptions)
-    .cookie("refreshToken", refreshToken, cookieOptions)
+    .cookie("accessToken", accessToken, accessCookieOptions)
+    .cookie("refreshToken", refreshToken, refreshCookieOptions)
     .json(new ApiResponse(200, "You logged in successfully 🎉", loggedInUser));
 });
 
@@ -108,8 +116,8 @@ const logout = asyncHandler(async (req, res) => {
   //Clear cookies
   return res
     .status(200)
-    .clearCookie("accessToken", cookieOptions)
-    .clearCookie("refreshToken", cookieOptions)
+    .clearCookie("accessToken", accessCookieOptions)
+    .clearCookie("refreshToken", refreshCookieOptions)
     .json(new ApiResponse(200, "You logged out successfully."));
 });
 
@@ -143,8 +151,8 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
 
     return res
       .status(200)
-      .cookie("accessToken", accessToken, cookieOptions)
-      .cookie("refreshToken", refreshToken, cookieOptions)
+      .cookie("accessToken", accessToken, accessCookieOptions)
+      .cookie("refreshToken", refreshToken, refreshCookieOptions)
       .json(
         new ApiResponse(
           200,
