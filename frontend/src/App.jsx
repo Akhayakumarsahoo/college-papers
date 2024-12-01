@@ -12,6 +12,7 @@ function App() {
     const fetchUser = async () => {
       await AxiosInstance.post("/users/refresh-token")
         .then(({ data }) => {
+          console.log(data);
           setUser(data.data);
         })
         .catch(() => {

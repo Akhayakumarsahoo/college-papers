@@ -30,6 +30,7 @@ app.use(express.static("public"));
 app.use(cookieParser());
 app.use(
   cors({
+    origin: "*",
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
   })

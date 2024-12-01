@@ -9,6 +9,7 @@ const accessCookieOptions = {
   secure: process.env.NODE_ENV === "production",
   sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
   sameSite: "none",
+  maxAge: process.env.ACCESS_TOKEN_EXPIRY,
 };
 
 const refreshCookieOptions = {
@@ -16,6 +17,7 @@ const refreshCookieOptions = {
   secure: process.env.NODE_ENV === "production",
   sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
   sameSite: "none",
+  maxAge: process.env.REFRESH_TOKEN_EXPIRY,
 };
 
 const generateAccessAndRefreshTokens = async (user) => {
