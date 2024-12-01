@@ -30,7 +30,11 @@ app.use(express.static("public"));
 app.use(cookieParser());
 app.use(
   cors({
-    origin: ["https://college-papers.vercel.app", "http://localhost:5173"],
+    origin: [
+      "https://college-papers.vercel.app",
+      "http://localhost:5173",
+      "http://localhost:3000",
+    ],
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
   })
@@ -62,8 +66,8 @@ app.use((err, req, res, next) => {
   });
 });
 
-process.on("SIGINT", async () => {
-  console.log("Gracefully shutting down...");
-  await mongoose.connection.close();
-  process.exit(0);
-});
+// process.on("SIGINT", async () => {
+//   console.log("Gracefully shutting down...");
+//   await mongoose.connection.close();
+//   process.exit(0);
+// });

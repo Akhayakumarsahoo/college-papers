@@ -6,16 +6,14 @@ import jwt from "jsonwebtoken";
 
 const accessCookieOptions = {
   httpOnly: true,
-  secure: process.env.NODE_ENV === "production",
-  sameSite: "none",
-  maxAge: 24 * 60 * 60 * 1000, // 1 day
+  secure: true,
+  // sameSite: "none",
 };
 
 const refreshCookieOptions = {
   httpOnly: true,
-  secure: process.env.NODE_ENV === "production",
-  sameSite: "none",
-  maxAge: 14 * 24 * 60 * 60 * 1000, // 14 days
+  secure: true,
+  // sameSite: "none",
 };
 
 const generateAccessAndRefreshTokens = async (user) => {

@@ -58,9 +58,7 @@ export default function EditPost() {
 
   useEffect(() => {
     const fetchData = async () => {
-      await AxiosInstance.get(`/posts/${id}/edit`, {
-        withCredentials: true,
-      })
+      await AxiosInstance.get(`/posts/${id}/edit`)
         .then(({ data }) => {
           form.reset(data.data);
         })
@@ -86,6 +84,7 @@ export default function EditPost() {
       headers: {
         "Content-Type": "multipart/form-data",
       },
+      withCredentials: true,
     })
       .then(({ data }) => {
         toast({ title: data.message });

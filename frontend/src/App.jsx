@@ -15,9 +15,9 @@ function App() {
           console.log(data);
           setUser(data.data);
         })
-        .catch(() => {
+        .catch((err) => {
           setUser(null);
-          // console.error("Error fetching user:", err);
+          console.error("Error fetching user:", err);
         });
     };
 

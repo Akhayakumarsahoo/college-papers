@@ -79,6 +79,7 @@ export default function CreatePost() {
       headers: {
         "Content-Type": "multipart/form-data",
       },
+      withCredentials: true,
     })
       .then(({ data }) => {
         toast({ title: data.message });
