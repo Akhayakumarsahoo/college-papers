@@ -7,13 +7,13 @@ import jwt from "jsonwebtoken";
 const accessCookieOptions = {
   httpOnly: true,
   secure: true,
-  // sameSite: "none",
+  sameSite: "none",
 };
 
 const refreshCookieOptions = {
   httpOnly: true,
   secure: true,
-  // sameSite: "none",
+  sameSite: "none",
 };
 
 const generateAccessAndRefreshTokens = async (user) => {

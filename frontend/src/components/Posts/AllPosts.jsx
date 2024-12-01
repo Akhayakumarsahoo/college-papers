@@ -53,7 +53,7 @@ export default function AllPosts() {
 
   useEffect(() => {
     const fetchPosts = async () => {
-      await AxiosInstance.get("/posts")
+      await AxiosInstance.get("/posts", { withCredentials: true })
         .then(({ data }) => {
           setPosts(data.data);
         })

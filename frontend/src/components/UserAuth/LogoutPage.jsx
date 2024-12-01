@@ -21,7 +21,9 @@ function LogoutPage() {
   const { setUser } = useContext(GeneralContext);
 
   const handleLogout = async () => {
-    await AxiosInstance.post("/users/logout")
+    await AxiosInstance.post("/users/logout", {
+      headers: { withCredentials: true },
+    })
       .then(({ data }) => {
         setUser(null);
         navigate("/");

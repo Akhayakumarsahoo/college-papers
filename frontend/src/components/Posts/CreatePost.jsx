@@ -57,10 +57,12 @@ export default function CreatePost() {
 
   useEffect(() => {
     const renderCreatePage = async () => {
-      await AxiosInstance.get("/posts/create").catch((err) => {
-        navigate("/signup");
-        console.error("Error fetching create page", err);
-      });
+      await AxiosInstance.get("/posts/create", { withCredentials: true }).catch(
+        (err) => {
+          navigate("/signup");
+          console.error("Error fetching create page", err);
+        }
+      );
     };
     renderCreatePage();
   }, [navigate]);
