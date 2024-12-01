@@ -233,7 +233,7 @@ export default function AllPosts() {
                     </p>
                     <div className="flex items-center text-xs text-muted-foreground">
                       <User className="h-4 w-4 mr-1" />
-                      {post.owner.fullName}
+                      {post.owner?.fullName}
                       <Calendar className="h-4 w-4 ml-2 mr-1" />
                       {moment(post.createdAt).fromNow()}
                     </div>
