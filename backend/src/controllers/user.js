@@ -7,15 +7,15 @@ import jwt from "jsonwebtoken";
 const accessCookieOptions = {
   httpOnly: true,
   secure: true,
-  sameSite: "none",
-  maxAge: 24 * 60 * 60 * 1000,
+  sameSite: "lax",
+  expires: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000),
 };
 
 const refreshCookieOptions = {
   httpOnly: true,
   secure: true,
-  sameSite: "none",
-  maxAge: 14 * 24 * 60 * 60 * 1000,
+  sameSite: "lax",
+  expires: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
 };
 
 const generateAccessAndRefreshTokens = async (user) => {
