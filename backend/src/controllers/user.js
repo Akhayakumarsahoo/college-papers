@@ -9,6 +9,7 @@ const accessCookieOptions = {
   secure: true,
   sameSite: "lax",
   expires: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000),
+  domain: "https://college-papers.vercel.app",
 };
 
 const refreshCookieOptions = {
@@ -16,6 +17,7 @@ const refreshCookieOptions = {
   secure: true,
   sameSite: "lax",
   expires: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
+  domain: "https://college-papers.vercel.app",
 };
 
 const generateAccessAndRefreshTokens = async (user) => {
