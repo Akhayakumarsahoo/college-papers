@@ -7,7 +7,6 @@ import jwt from "jsonwebtoken";
 const accessCookieOptions = {
   httpOnly: true,
   secure: process.env.NODE_ENV === "production",
-  sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
   sameSite: "none",
   maxAge: 24 * 60 * 60 * 1000, // 1 day
 };
@@ -15,7 +14,6 @@ const accessCookieOptions = {
 const refreshCookieOptions = {
   httpOnly: true,
   secure: process.env.NODE_ENV === "production",
-  sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
   sameSite: "none",
   maxAge: 14 * 24 * 60 * 60 * 1000, // 14 days
 };
