@@ -3,7 +3,7 @@ import { toast } from "@/hooks/use-toast.js";
 
 const AxiosInstance = axios.create({
   baseURL: `https://college-papers-production.up.railway.app/api`,
-  withCredentials: true,
+  headers: { withCredentials: true },
 });
 
 AxiosInstance.interceptors.response.use(
