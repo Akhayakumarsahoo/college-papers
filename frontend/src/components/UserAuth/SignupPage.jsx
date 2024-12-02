@@ -66,7 +66,7 @@ export default function SignupPage() {
   });
 
   async function onSubmit(values) {
-    await AxiosInstance.post("/users/signup", ...values)
+    await AxiosInstance.post("/users/signup", { ...values })
       .then(({ data }) => {
         toast({
           title: data.message,
