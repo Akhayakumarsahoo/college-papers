@@ -51,7 +51,7 @@ export default function ShowPost() {
   const [notFound, setNotFound] = useState(false);
   useEffect(() => {
     const fetchPost = async () => {
-      await AxiosInstance.get(`/posts/${id}`, { withCredentials: true })
+      await AxiosInstance.get(`/posts/${id}`)
         .then(({ data }) => {
           setPost(data.data);
           setIsOwner(data.data.owner._id === user?._id);
@@ -76,7 +76,7 @@ export default function ShowPost() {
   };
 
   const handleDeletePost = async () => {
-    await AxiosInstance.delete(`/posts/${id}`, { withCredentials: true })
+    await AxiosInstance.delete(`/posts/${id}`)
       .then(() => {
         setPost({});
         navigate("/posts");

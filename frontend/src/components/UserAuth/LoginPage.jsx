@@ -53,7 +53,6 @@ export default function LoginPage() {
   async function onSubmit(values) {
     await AxiosInstance.post("/users/login", {
       ...values,
-      withCredentials: true,
     })
       .then(({ data }) => {
         setUser(data.data);

@@ -2,8 +2,8 @@ import axios from "axios";
 import { toast } from "@/hooks/use-toast.js";
 
 const AxiosInstance = axios.create({
-  baseURL: `https://college-papers-production.up.railway.app/api`,
-  headers: { withCredentials: true },
+  baseURL: `http://localhost:9000/api`,
+  withCredentials: true,
 });
 
 AxiosInstance.interceptors.response.use(
