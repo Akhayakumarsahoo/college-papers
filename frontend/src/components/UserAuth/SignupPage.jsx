@@ -71,7 +71,7 @@ export default function SignupPage() {
         toast({
           title: data.message,
         });
-        setUser(data.data);
+        setUser(data.data.user);
         naviagte("/");
       })
       .catch((error) => console.error("Error signing up", error));

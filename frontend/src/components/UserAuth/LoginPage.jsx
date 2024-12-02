@@ -55,7 +55,7 @@ export default function LoginPage() {
       ...values,
     })
       .then(({ data }) => {
-        setUser(data.data);
+        setUser(data.data.user);
         toast({
           title: data.message,
         });
