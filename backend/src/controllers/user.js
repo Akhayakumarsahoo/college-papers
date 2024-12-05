@@ -114,10 +114,15 @@ const logout = asyncHandler(async (req, res) => {
     },
     { $new: true }
   );
+  const options = {
+    httpOnly: true,
+    secure: true,
+    sameSite: "none",
+  };
   //Clear cookies
   return res
     .status(200)
-    .clearCookie("refreshToken", cookieOptions)
+    .clearCookie("refreshToken", options)
     .json(new ApiResponse(200, "You logged out successfully."));
 });
 
