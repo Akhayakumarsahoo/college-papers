@@ -22,9 +22,9 @@ import {
 } from "@/components/ui/select";
 import { toast } from "@/hooks/use-toast.js";
 import { useNavigate } from "react-router-dom";
-import { GeneralContext } from "@/GeneralContext";
-import { useContext, useEffect } from "react";
-import AxiosInstance from "@/AxiosInstance";
+import { useEffect } from "react";
+import AxiosInstance from "@/api/AxiosInstance";
+import useValues from "@/hooks/useValues";
 
 // Validation Schema
 const formSchema = z.object({
@@ -40,7 +40,7 @@ const formSchema = z.object({
 });
 
 export default function CreatePost() {
-  const { postTypes, departments, semesters } = useContext(GeneralContext);
+  const { user, postTypes, departments, semesters } = useValues();
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -56,16 +56,14 @@ export default function CreatePost() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const renderCreatePage = async () => {
-      await AxiosInstance.get("/posts/create", { withCredentials: true }).catch(
-        (err) => {
-          navigate("/signup");
-          console.error("Error fetching create page", err);
-        }
-      );
-    };
-    renderCreatePage();
-  }, [navigate]);
+    if (!user) {
+      toast({
+        title: "You must be logged in to create a post.",
+        variant: "destructive",
+      });
+      navigate("/signup");
+    }
+  }, [user, navigate]);
 
   async function onSubmit(values) {
     const formData = new FormData();

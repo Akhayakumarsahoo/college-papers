@@ -22,9 +22,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "@/hooks/use-toast.js";
-import { useContext, useEffect } from "react";
-import { GeneralContext } from "@/GeneralContext";
-import AxiosInstance from "@/AxiosInstance";
+import { useEffect } from "react";
+import AxiosInstance from "@/api/AxiosInstance";
+import useValues from "@/hooks/useValues";
 
 const formSchema = z.object({
   title: z.string().min(2, { message: "Title must be at least 2 characters." }),
@@ -40,7 +40,7 @@ const formSchema = z.object({
 
 export default function EditPost() {
   const navigate = useNavigate();
-  const { departments, postTypes, semesters } = useContext(GeneralContext);
+  const { departments, postTypes, semesters } = useValues();
   const { id } = useParams();
 
   const form = useForm({
@@ -57,7 +57,7 @@ export default function EditPost() {
   });
 
   useEffect(() => {
-    const fetchData = async () => {
+    (async () => {
       await AxiosInstance.get(`/posts/${id}/edit`)
         .then(({ data }) => {
           form.reset(data.data);
@@ -66,8 +66,7 @@ export default function EditPost() {
           navigate(`/posts/${id}`);
           console.error("Error fetching post", error);
         });
-    };
-    fetchData();
+    })();
   }, [id, form, navigate]);
 
   async function onSubmit(values) {
@@ -84,6 +83,7 @@ export default function EditPost() {
       headers: {
         "Content-Type": "multipart/form-data",
       },
+      withCredentials: true,
     })
       .then(({ data }) => {
         toast({ title: data.message });

@@ -30,14 +30,14 @@ const allPosts = asyncHandler(async (req, res) => {
   return res.status(200).json(new ApiResponse(200, "All posts", updatedPosts));
 });
 
-const showCreatePost = asyncHandler(async (req, res) => {
-  return res.status(200).json(new ApiResponse(200, "Create post page"));
-});
+// const showCreatePost = asyncHandler(async (req, res) => {
+//   return res.status(200).json(new ApiResponse(200, "Create post page"));
+// });
 
 const createPost = asyncHandler(async (req, res) => {
   const { title, description, postType, department, semester, subject } =
     req.body;
-  const cloudFile = await uploadOnCloudinary(req.file.path);
+  const cloudFile = await uploadOnCloudinary(req.file?.path);
   if (!cloudFile)
     throw new ApiError(500, "Something went wrong while uploading file");
 
@@ -135,11 +135,4 @@ const deletePost = asyncHandler(async (req, res) => {
   res.json(new ApiResponse(200, "Post deleted successfully"));
 });
 
-export {
-  allPosts,
-  showCreatePost,
-  createPost,
-  showPost,
-  updatePost,
-  deletePost,
-};
+export { allPosts, createPost, showPost, updatePost, deletePost };

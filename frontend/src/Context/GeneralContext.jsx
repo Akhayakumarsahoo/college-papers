@@ -19,7 +19,13 @@ const GeneralContextProvider = ({ children }) => {
   const semesters = ["1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th"];
   return (
     <GeneralContext.Provider
-      value={{ user, setUser, postTypes, departments, semesters }}
+      value={{
+        user,
+        setUser,
+        postTypes,
+        departments,
+        semesters,
+      }}
     >
       {children}
     </GeneralContext.Provider>

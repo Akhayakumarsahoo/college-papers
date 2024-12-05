@@ -7,7 +7,7 @@ import cookieParser from "cookie-parser";
 import mongoose from "mongoose";
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 9000;
 const MONGO_URL = process.env.MONGO_URL;
 
 (async () => {
@@ -55,7 +55,6 @@ app.use((err, req, res, next) => {
       errors: err.errors,
     });
   }
-
   // Handle unexpected errors
   console.error(err); // Log for debugging
   res.status(500).json({
@@ -65,8 +64,8 @@ app.use((err, req, res, next) => {
   });
 });
 
-// process.on("SIGINT", async () => {
-//   console.log("Gracefully shutting down...");
-//   await mongoose.connection.close();
-//   process.exit(0);
-// });
+process.on("SIGINT", async () => {
+  console.log("Gracefully shutting down...");
+  await mongoose.connection.close();
+  process.exit(0);
+});

@@ -2,13 +2,30 @@ import axios from "axios";
 import { toast } from "@/hooks/use-toast.js";
 
 const AxiosInstance = axios.create({
-  baseURL: `https://college-papers-production.up.railway./api`,
+  baseURL: "https://college-papers-production.up.railway.app/api",
+  // baseURL: "http://localhost:9000/api",
   withCredentials: true,
 });
 
 AxiosInstance.interceptors.response.use(
   (response) => response,
-  (error) => {
+  async (error) => {
+    const originalRequest = error.config;
+
+    if (
+      error.response.status === 401 &&
+      !originalRequest._retry &&
+      !originalRequest.url.includes("/users/refresh-token")
+    ) {
+      originalRequest._retry = true;
+      return AxiosInstance.post("/users/refresh-token").then((response) => {
+        AxiosInstance.defaults.headers.common[
+          "Authorization"
+        ] = `Bearer ${response.data.data.accessToken}`; // update the token
+        return AxiosInstance(originalRequest); // retry the original request
+      });
+    }
+
     const ignoreMessages = [
       "Refresh token is expired or used",
       "Invalid refresh token",

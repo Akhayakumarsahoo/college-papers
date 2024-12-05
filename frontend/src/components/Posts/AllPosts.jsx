@@ -1,12 +1,10 @@
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   Search,
   Plus,
   ChevronDown,
   Filter,
-  // Eye,
-  // ThumbsUp,
   User,
   Calendar,
 } from "lucide-react";
@@ -37,12 +35,12 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import moment from "moment";
 import { useNavigate } from "react-router-dom";
-import { GeneralContext } from "../../GeneralContext";
-import AxiosInstance from "@/AxiosInstance";
+import AxiosInstance from "@/api/AxiosInstance";
+import useValues from "@/hooks/useValues";
 
 export default function AllPosts() {
   const navigate = useNavigate();
-  const { departments, postTypes, semesters } = useContext(GeneralContext);
+  const { departments, postTypes, semesters } = useValues();
   const [posts, setPosts] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [filters, setFilters] = useState({
@@ -52,14 +50,14 @@ export default function AllPosts() {
   });
 
   useEffect(() => {
-    const fetchPosts = async () => {
-      await AxiosInstance.get("/posts")
-        .then(({ data }) => {
-          setPosts(data.data);
-        })
-        .catch((error) => console.error("Error fetching posts:", error));
-    };
-    fetchPosts();
+    (async () => {
+      try {
+        const { data } = await AxiosInstance.get("/posts");
+        setPosts(data.data);
+      } catch (error) {
+        console.error("Error fetching posts:", error);
+      }
+    })();
   }, [setPosts, navigate]);
 
   const handleFilterChange = (category, item) => {

@@ -4,10 +4,11 @@ import ApiError from "../utils/apiError.js";
 import ApiResponse from "../utils/apiResponse.js";
 import jwt from "jsonwebtoken";
 
-const options = {
+const cookieOptions = {
   httpOnly: true,
   secure: true,
   sameSite: "none",
+  maxAge: 14 * 24 * 60 * 60 * 1000,
 };
 
 const generateAccessAndRefreshTokens = async (user) => {
@@ -61,13 +62,11 @@ const signup = asyncHandler(async (req, res) => {
 
   return res
     .status(201)
-    .cookie("accessToken", accessToken, options)
-    .cookie("refreshToken", refreshToken, options)
+    .cookie("refreshToken", refreshToken, cookieOptions)
     .json(
       new ApiResponse(201, "You regestered successfully 🎉", {
         user: createdUser,
         accessToken,
-        refreshToken,
       })
     );
 });
@@ -97,13 +96,11 @@ const login = asyncHandler(async (req, res) => {
   );
   return res
     .status(200)
-    .cookie("accessToken", accessToken, options)
-    .cookie("refreshToken", refreshToken, options)
+    .cookie("refreshToken", refreshToken, cookieOptions)
     .json(
       new ApiResponse(200, "You logged in successfully 🎉", {
         user: loggedInUser,
         accessToken,
-        refreshToken,
       })
     );
 });
@@ -120,18 +117,18 @@ const logout = asyncHandler(async (req, res) => {
   //Clear cookies
   return res
     .status(200)
-    .clearCookie("accessToken", options)
-    .clearCookie("refreshToken", options)
+    .clearCookie("refreshToken", cookieOptions)
     .json(new ApiResponse(200, "You logged out successfully."));
 });
 
 const refreshAccessToken = asyncHandler(async (req, res) => {
   //Get refresh token
-  const incomingRefreshToken =
-    req.cookies.refreshToken || req.body.refreshToken;
+  const incomingRefreshToken = req.cookies.refreshToken;
   if (!incomingRefreshToken) {
     throw new ApiError(401, "Refresh token not found");
   }
+  // console.log(incomingRefreshToken);
+
   //Check if the refresh token is valid
   try {
     const decodedToken = jwt.verify(
@@ -155,13 +152,11 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
 
     return res
       .status(200)
-      .cookie("accessToken", accessToken, options)
-      .cookie("refreshToken", refreshToken, options)
+      .cookie("refreshToken", refreshToken, cookieOptions)
       .json(
         new ApiResponse(200, "Access token refreshed successfully", {
           user: loggedInUser,
           accessToken,
-          refreshToken,
         })
       );
   } catch (error) {

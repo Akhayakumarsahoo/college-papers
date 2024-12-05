@@ -1,4 +1,4 @@
-import React from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -22,11 +22,10 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { toast } from "../../hooks/use-toast.js";
-import { Link, useNavigate } from "react-router-dom";
-import { useContext } from "react";
-import { GeneralContext } from "../../GeneralContext.jsx";
-import AxiosInstance from "@/AxiosInstance.js";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import AxiosInstance from "@/api/AxiosInstance.js";
 import { LogIn } from "lucide-react";
+import useValues from "@/hooks/useValues.js";
 
 const formSchema = z.object({
   email: z.string().email({
@@ -39,8 +38,10 @@ const formSchema = z.object({
 
 export default function LoginPage() {
   const navigate = useNavigate();
-  const { setUser } = useContext(GeneralContext);
-  const [open, setOpen] = React.useState(false);
+  const location = useLocation();
+  const from = location.state?.from?.pathname || "/";
+  const { setUser } = useValues();
+  const [open, setOpen] = useState(false);
 
   const form = useForm({
     resolver: zodResolver(formSchema),
@@ -51,18 +52,26 @@ export default function LoginPage() {
   });
 
   async function onSubmit(values) {
-    await AxiosInstance.post("/users/login", {
-      ...values,
-    })
-      .then(({ data }) => {
-        setUser(data.data.user);
-        toast({
-          title: data.message,
-        });
-        setOpen(false);
-        navigate("/");
-      })
-      .catch((error) => console.error("Error logging in", error));
+    try {
+      const { data } = await AxiosInstance.post("/users/login", {
+        ...values,
+      });
+      setUser(data.data.user);
+      AxiosInstance.defaults.headers.common[
+        "Authorization"
+      ] = `Bearer ${data.data.accessToken}`;
+      toast({
+        title: data.message,
+      });
+      setOpen(false);
+      navigate(from, { replace: true });
+    } catch (error) {
+      // toast({
+      //   title: error.response.data.message,
+      //   variant: "destructive",
+      // });
+      console.error("Error logging in", error);
+    }
   }
 
   return (

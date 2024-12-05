@@ -21,11 +21,10 @@ import {
 } from "@/components/ui/select";
 import { toast } from "../../hooks/use-toast.js";
 import LoginPage from "./LoginPage.jsx";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
-import { GeneralContext } from "../../GeneralContext.jsx";
-import { useContext } from "react";
-import AxiosInstance from "@/AxiosInstance.js";
+import AxiosInstance from "@/api/AxiosInstance.js";
+import useValues from "@/hooks/useValues.js";
 
 const formSchema = z.object({
   fullName: z.string().min(2, {
@@ -50,8 +49,9 @@ const formSchema = z.object({
 
 export default function SignupPage() {
   const naviagte = useNavigate();
-
-  const { setUser } = useContext(GeneralContext);
+  const location = useLocation();
+  const from = location.state?.from?.pathname || "/";
+  const { setUser } = useValues();
 
   const form = useForm({
     resolver: zodResolver(formSchema),
@@ -66,15 +66,23 @@ export default function SignupPage() {
   });
 
   async function onSubmit(values) {
-    await AxiosInstance.post("/users/signup", { ...values })
-      .then(({ data }) => {
-        toast({
-          title: data.message,
-        });
-        setUser(data.data.user);
-        naviagte("/");
-      })
-      .catch((error) => console.error("Error signing up", error));
+    try {
+      const { data } = await AxiosInstance.post("/users/signup", { ...values });
+      setUser(data.data.user);
+      AxiosInstance.defaults.headers.common[
+        "Authorization"
+      ] = `Bearer ${data.data.accessToken}`;
+      toast({
+        title: data.message,
+      });
+      naviagte(from, { replace: true });
+    } catch (error) {
+      // toast({
+      //   title: error.response.data.message,
+      //   variant: "destructive",
+      // });
+      console.error("Error signing up", error);
+    }
   }
 
   return (

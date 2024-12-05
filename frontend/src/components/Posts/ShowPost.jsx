@@ -19,7 +19,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import moment from "moment";
 import {
   DropdownMenu,
@@ -27,7 +27,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { GeneralContext } from "@/GeneralContext";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -39,18 +38,19 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "../ui/alert-dialog";
-import AxiosInstance from "@/AxiosInstance";
+import AxiosInstance from "@/api/AxiosInstance";
 import NotFoundPage from "../NotFoundPage";
+import useValues from "@/hooks/useValues";
 
 export default function ShowPost() {
   const navigate = useNavigate();
-  const { user } = useContext(GeneralContext);
+  const { user } = useValues();
   const [post, setPost] = useState({});
   const { id } = useParams();
   const [isOwner, setIsOwner] = useState(false);
   const [notFound, setNotFound] = useState(false);
   useEffect(() => {
-    const fetchPost = async () => {
+    (async () => {
       await AxiosInstance.get(`/posts/${id}`)
         .then(({ data }) => {
           setPost(data.data);
@@ -60,8 +60,7 @@ export default function ShowPost() {
           setNotFound(true);
           console.error("Error fetching post", error);
         });
-    };
-    fetchPost();
+    })();
   }, [id, user, navigate]);
 
   const [copy, setCopy] = useState(false);

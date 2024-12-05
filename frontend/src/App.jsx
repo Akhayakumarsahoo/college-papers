@@ -1,26 +1,27 @@
-import { useContext, useEffect, Suspense, lazy } from "react";
+import { useEffect, Suspense, lazy } from "react";
 import LoadingPage from "./components/LoadingPage";
 const Navbar = lazy(() => import("./components/Layouts/Navbar"));
 const Footer = lazy(() => import("./components/Layouts/Footer"));
 import { Outlet } from "react-router-dom";
-import { GeneralContext } from "./GeneralContext";
-import AxiosInstance from "./AxiosInstance";
+import AxiosInstance from "./api/AxiosInstance";
+import useValues from "./hooks/useValues";
 
 function App() {
-  const { setUser } = useContext(GeneralContext);
+  const { setUser } = useValues();
   useEffect(() => {
-    const fetchUser = async () => {
+    (async () => {
       await AxiosInstance.post("/users/refresh-token")
         .then(({ data }) => {
           setUser(data.data.user);
+          // console.log(data);
+          AxiosInstance.defaults.headers.common[
+            "Authorization"
+          ] = `Bearer ${data.data.accessToken}`;
         })
         .catch((err) => {
-          // setUser(null);
           console.error("Error fetching user:", err);
         });
-    };
-
-    fetchUser();
+    })();
   }, [setUser]);
 
   return (

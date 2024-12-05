@@ -10,26 +10,32 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { toast } from "../../hooks/use-toast.js";
-import { useContext } from "react";
-import { GeneralContext } from "../../GeneralContext.jsx";
 import { LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import AxiosInstance from "@/AxiosInstance.js";
+import AxiosInstance from "@/api/AxiosInstance.js";
+import useValues from "@/hooks/useValues.js";
 
 function LogoutPage() {
   const navigate = useNavigate();
-  const { setUser } = useContext(GeneralContext);
+  const { setUser } = useValues();
 
   const handleLogout = async () => {
-    await AxiosInstance.post("/users/logout")
-      .then(({ data }) => {
+    try {
+      await AxiosInstance.post("/users/logout").then(({ data }) => {
         setUser(null);
+        AxiosInstance.defaults.headers.common["Authorization"] = undefined;
         navigate("/");
         toast({
           title: data.message,
         });
-      })
-      .catch((error) => console.error(" Error logging out", error));
+      });
+    } catch (error) {
+      toast({
+        title: error.response.data.message,
+        variant: "destructive",
+      });
+      console.error(" Error logging out", error);
+    }
   };
   return (
     <AlertDialog>
