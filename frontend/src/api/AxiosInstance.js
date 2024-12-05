@@ -2,8 +2,7 @@ import axios from "axios";
 import { toast } from "@/hooks/use-toast.js";
 
 const AxiosInstance = axios.create({
-  baseURL: "https://college-papers-production.up.railway.app/api",
-  // baseURL: "http://localhost:9000/api",
+  baseURL: `https://college-papers-production.up.railway./api`,
   withCredentials: true,
 });
 
