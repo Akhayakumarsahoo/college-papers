@@ -6,14 +6,13 @@ import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
-  FormDescription,
+  // FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Card,
   CardContent,
@@ -22,34 +21,33 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { toast } from "../hooks/use-toast.js";
 import LogoutPage from "./UserAuth/LogoutPage.jsx";
+import useValues from "@/hooks/useValues.js";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select.jsx";
+import AxiosInstance from "@/api/AxiosInstance.js";
 
 const formSchema = z.object({
-  name: z.string().min(2, {
-    message: "Name must be at least 2 characters.",
+  fullName: z.string().min(2, {
+    message: "Full name must be at least 2 characters.",
   }),
-  email: z.string().email({
-    message: "Please enter a valid email address.",
+  batch: z.string().min(2, {
+    message: "Please enter a valid batch year.",
   }),
-  bio: z.string().max(160, {
-    message: "Bio must not be longer than 160 characters.",
+  department: z.string().min(2, {
+    message: "Please select a department.",
   }),
 });
-
-// Mock user data
-const user = {
-  id: 1,
-  name: "Akhaya kumar sahoo",
-  email: "john.doe@example.com",
-  bio: "Computer Science student passionate about web development and AI.",
-  avatar: "/placeholder.svg?height=100&width=100",
-};
-
 // Mock posts data
 const userPosts = [
   {
@@ -73,28 +71,33 @@ const userPosts = [
 
 export default function ProfilePage() {
   const [isEditing, setIsEditing] = useState(false);
-
+  const { user, setUser, departments, years } = useValues();
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: user.name,
-      email: user.email,
-      bio: user.bio,
+      fullName: user.fullName,
+      batch: user.batch,
+      department: user.department,
     },
   });
 
-  function onSubmit(values) {
-    // Here you would typically send the updated profile data to your backend
-    console.log(values);
-    toast({
-      title: "Profile Updated",
-      description: "Your profile has been successfully updated.",
-    });
-    setIsEditing(false);
+  async function onSubmit(values) {
+    try {
+      const { data } = await AxiosInstance.put("/users/update-account", {
+        ...values,
+      });
+      setUser(data.data);
+      toast({
+        title: data.message,
+      });
+      setIsEditing(false);
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-8 h-screen">
       <Tabs defaultValue="profile" className="w-full">
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="profile">Profile</TabsTrigger>
@@ -105,17 +108,20 @@ export default function ProfilePage() {
             <CardHeader>
               <div className="flex items-center space-x-4">
                 <Avatar className="w-20 h-20">
-                  <AvatarImage src={user.avatar} alt={user.name} />
                   <AvatarFallback>
-                    {user.name
+                    {user.fullName
                       .split(" ")
                       .map((n) => n[0])
                       .join("")}
                   </AvatarFallback>
                 </Avatar>
                 <div>
-                  <CardTitle>{user.name}</CardTitle>
+                  <CardTitle>{user.fullName}</CardTitle>
                   <CardDescription>{user.email}</CardDescription>
+                  <div className="space-x-2 pt-1">
+                    <Badge variant={"outline"}>{user.department}</Badge>
+                    <Badge variant={"secondary"}>Batch {user.batch}</Badge>
+                  </div>
                 </div>
               </div>
             </CardHeader>
@@ -124,14 +130,14 @@ export default function ProfilePage() {
                 <Form {...form}>
                   <form
                     onSubmit={form.handleSubmit(onSubmit)}
-                    className="space-y-8"
+                    className="space-y-2"
                   >
                     <FormField
                       control={form.control}
-                      name="name"
+                      name="fullName"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Name</FormLabel>
+                          <FormLabel>Full Name</FormLabel>
                           <FormControl>
                             <Input {...field} />
                           </FormControl>
@@ -141,34 +147,55 @@ export default function ProfilePage() {
                     />
                     <FormField
                       control={form.control}
-                      name="email"
+                      name="batch"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Email</FormLabel>
-                          <FormControl>
-                            <Input {...field} />
-                          </FormControl>
+                          <FormLabel>Batch Year</FormLabel>
+                          <Select
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                          >
+                            <FormControl>
+                              <SelectTrigger>
+                                <Input {...field} placeholder="Select a year" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {years.map((year) => (
+                                <SelectItem key={year} value={year}>
+                                  {year}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
                           <FormMessage />
                         </FormItem>
                       )}
                     />
                     <FormField
                       control={form.control}
-                      name="bio"
+                      name="department"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Bio</FormLabel>
-                          <FormControl>
-                            <Textarea
-                              placeholder="Tell us a little bit about yourself"
-                              className="resize-none"
-                              {...field}
-                            />
-                          </FormControl>
-                          <FormDescription>
-                            You can @mention other users and organizations to
-                            link to them.
-                          </FormDescription>
+                          <FormLabel>Department</FormLabel>
+                          <Select
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                          >
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select a department" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {departments.map((department) => (
+                                <SelectItem
+                                  key={department}
+                                  value={department}
+                                >{`${department}`}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
                           <FormMessage />
                         </FormItem>
                       )}
@@ -187,21 +214,15 @@ export default function ProfilePage() {
                 </Form>
               ) : (
                 <>
-                  <div className="space-y-4">
-                    <div>
-                      <h3 className="text-lg font-medium">Bio</h3>
-                      <p className="text-sm text-muted-foreground">
-                        {user.bio}
-                      </p>
-                    </div>
-                  </div>
                   <Button
                     className="mt-4 mr-5"
                     onClick={() => setIsEditing(true)}
                   >
                     Edit Profile
                   </Button>
-                  <LogoutPage btnType="outline" />
+                  <div className="pt-2">
+                    <LogoutPage />
+                  </div>
                 </>
               )}
             </CardContent>
@@ -212,8 +233,8 @@ export default function ProfilePage() {
             <CardHeader>
               <CardTitle>My Posts</CardTitle>
               <CardDescription>
-                Here are the posts you've created. Click on a post to edit or
-                view details.
+                Here are the posts you&apos;ve created. Click on a post to edit
+                or view details.
               </CardDescription>
             </CardHeader>
             <CardContent>

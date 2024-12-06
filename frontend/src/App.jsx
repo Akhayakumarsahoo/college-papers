@@ -10,17 +10,16 @@ function App() {
   const { setUser } = useValues();
   useEffect(() => {
     (async () => {
-      await AxiosInstance.post("/users/refresh-token")
-        .then(({ data }) => {
-          setUser(data.data.user);
-          // console.log(data);
-          AxiosInstance.defaults.headers.common[
-            "Authorization"
-          ] = `Bearer ${data.data.accessToken}`;
-        })
-        .catch((err) => {
-          console.error("Error fetching user:", err);
-        });
+      try {
+        const { data } = await AxiosInstance.post("/users/refresh-token");
+        setUser(data.data.user);
+        // console.log(data);
+        AxiosInstance.defaults.headers.common[
+          "Authorization"
+        ] = `Bearer ${data.data.accessToken}`;
+      } catch (error) {
+        console.error(error);
+      }
     })();
   }, [setUser]);
 

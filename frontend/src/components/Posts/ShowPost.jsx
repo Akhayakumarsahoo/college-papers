@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
+  CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
@@ -90,7 +91,9 @@ export default function ShowPost() {
         <CardHeader>
           <div className="flex justify-between">
             <div className="flex flex-col justify-between items-start">
-              <CardTitle className="text-2xl">{post.title}</CardTitle>
+              <CardTitle className="max-w-[250px] md:max-w-[350px] truncate">
+                {post.title}
+              </CardTitle>
               <div className="flex gap-4">
                 <div className="flex items-center text-sm text-muted-foreground">
                   <User className="h-4 w-4 mr-1" />
@@ -206,7 +209,6 @@ export default function ShowPost() {
               </>
             )}
           </div>
-
           <div className="flex flex-wrap gap-2 mt-4">
             <Badge>{post.postType}</Badge>
             <Badge variant="secondary">{post.department}</Badge>
@@ -217,7 +219,7 @@ export default function ShowPost() {
             Subject: {post.subject}
           </div>
           {post.description && (
-            <p className="text-gray-700">{post.description}</p>
+            <CardDescription className="">{post.description}</CardDescription>
           )}
         </CardContent>
         <CardFooter className="flex justify-end">

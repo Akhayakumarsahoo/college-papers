@@ -28,7 +28,10 @@ import useValues from "@/hooks/useValues";
 
 // Validation Schema
 const formSchema = z.object({
-  title: z.string().min(2, { message: "Title must be at least 2 characters." }),
+  title: z
+    .string()
+    .min(2, { message: "Title must be at least 2 characters." })
+    .max(100, { message: "Title must be less than 100 characters." }),
   description: z.string().optional(),
   postType: z.string().min(2, { message: "Please select a post type." }),
   department: z.string().min(2, { message: "Please select a department." }),

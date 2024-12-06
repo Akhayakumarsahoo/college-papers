@@ -39,7 +39,7 @@ const postSchema = new mongoose.Schema(
       enum: [
         "Computer Science",
         "Physics",
-        "Chemistry", // Fixed typo: "Chemestry" -> "Chemistry"
+        "Chemistry",
         "Zoology",
         "Electronics",
         "Math",

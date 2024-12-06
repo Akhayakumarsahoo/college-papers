@@ -3,6 +3,7 @@ import { toast } from "@/hooks/use-toast.js";
 
 const AxiosInstance = axios.create({
   baseURL: `https://college-papers-production.up.railway.app/api`,
+  // baseURL: `http://localhost:9000/api`,
   withCredentials: true,
 });
 
@@ -14,14 +15,14 @@ AxiosInstance.interceptors.response.use(
     if (
       error.response.status === 401 &&
       !originalRequest._retry &&
-      !originalRequest.url.includes("/users/refresh-token")
+      !originalRequest.url.includes("/users")
     ) {
       originalRequest._retry = true;
       return AxiosInstance.post("/users/refresh-token").then((response) => {
         AxiosInstance.defaults.headers.common[
           "Authorization"
-        ] = `Bearer ${response.data.data.accessToken}`; // update the token
-        return AxiosInstance(originalRequest); // retry the original request
+        ] = `Bearer ${response.data.data.accessToken}`;
+        return AxiosInstance(originalRequest);
       });
     }
 

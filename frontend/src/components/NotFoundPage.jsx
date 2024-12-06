@@ -11,11 +11,6 @@ export default function NotFoundPage() {
           <p className="text-xl mb-8">
             Oops! The page you're looking for doesn't exist.
           </p>
-          <img
-            src="/placeholder.svg?height=200&width=300"
-            alt="404 Illustration"
-            className="mx-auto mb-8 rounded-lg"
-          />
           <p className="mb-8">
             It seems you've ventured into uncharted academic territory. Let's
             get you back to your studies!

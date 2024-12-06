@@ -26,11 +26,11 @@ const generateAccessAndRefreshTokens = async (user) => {
 };
 
 const signup = asyncHandler(async (req, res) => {
-  const { fullName, email, password, batch, department, gender } = req.body;
+  const { fullName, email, password, batch, department } = req.body;
   //Check all fields are filled
   if (
-    [fullName, email, password, batch, department, gender].some(
-      (field) => !field?.trim() === ""
+    [fullName, email, password, batch, department].some(
+      (field) => field?.trim() === ""
     )
   ) {
     throw new ApiError(400, "All fields are required");
@@ -47,7 +47,6 @@ const signup = asyncHandler(async (req, res) => {
     password,
     batch,
     department,
-    gender,
   });
   const createdUser = await User.findById(user.id).select(
     "-password -refreshToken"
@@ -169,4 +168,34 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
   }
 });
 
-export { signup, login, logout, refreshAccessToken };
+const getUser = asyncHandler(async (req, res) => {
+  return res
+    .status(200)
+    .json(new ApiResponse(200, "User found successfully", req.user));
+});
+
+const updateUserData = asyncHandler(async (req, res) => {
+  const { fullName, batch, department } = req.body;
+  if ([fullName, batch, department].some((field) => field?.trim() === "")) {
+    throw new ApiError(400, "All fields are required");
+  }
+
+  const user = await User.findByIdAndUpdate(
+    req.user._id,
+    {
+      fullName,
+      batch,
+      department,
+    },
+    { new: true }
+  ).select("-password -refreshToken");
+  if (!user)
+    throw new ApiError(500, "Something went wrong while updating user data", {
+      user,
+    });
+  return res
+    .status(200)
+    .json(new ApiResponse(200, "Your profile updated successfully 🎉", user));
+});
+
+export { signup, login, logout, refreshAccessToken, updateUserData, getUser };

@@ -8,8 +8,6 @@ import Post from "../models/post.js";
 const verifyJWT = asyncHandler(async (req, _, next) => {
   try {
     const token = req.header("Authorization")?.replace("Bearer ", "");
-
-    // console.log(token);
     if (!token) {
       throw new ApiError(401, "You are not logged in");
     }

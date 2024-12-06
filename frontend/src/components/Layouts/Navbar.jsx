@@ -12,10 +12,10 @@ import { Link, NavLink } from "react-router-dom";
 import LoginPage from "../UserAuth/LoginPage";
 import LogoutPage from "../UserAuth/LogoutPage";
 import useValues from "@/hooks/useValues";
+import { Avatar, AvatarFallback } from "../ui/avatar";
 
 export default function Navbar() {
   const { user } = useValues();
-
   return (
     <header className="px-4 lg:px-6 h-14 flex items-center border-b sticky top-0 z-50 bg-background ">
       <Link to="/" className="flex items-center justify-center">
@@ -42,7 +42,18 @@ export default function Navbar() {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon">
-              <User className="h-5 w-5" />
+              {user ? (
+                <Avatar className="w-10 h-10">
+                  <AvatarFallback>
+                    {user.fullName
+                      .split(" ")
+                      .map((n) => n[0])
+                      .join("")}
+                  </AvatarFallback>
+                </Avatar>
+              ) : (
+                <User className="h-10 w-10" />
+              )}
               <span className="sr-only">Open profile menu</span>
             </Button>
           </DropdownMenuTrigger>
@@ -54,7 +65,7 @@ export default function Navbar() {
             {user ? (
               <>
                 <DropdownMenuItem asChild>
-                  <Link to="/user/1">
+                  <Link to={`/user/${user._id}`}>
                     <User />
                     My Profile
                   </Link>

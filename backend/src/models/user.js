@@ -22,13 +22,18 @@ const userSchema = new mongoose.Schema(
     },
     department: {
       type: String,
-      enum: ["phy", "chem", "math", "bot", "zoo", "ele", "cs", "itm"],
+      enum: [
+        "Computer Science",
+        "Physics",
+        "Chemistry",
+        "Zoology",
+        "Electronics",
+        "Math",
+        "Botany",
+        "ITM",
+        "Others",
+      ],
       required: [true, "Department is required"],
-    },
-    gender: {
-      type: String,
-      enum: ["male", "female", "other"],
-      required: [true, "Gender is required"],
     },
     refreshToken: {
       type: String,

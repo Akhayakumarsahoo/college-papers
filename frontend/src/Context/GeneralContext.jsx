@@ -3,12 +3,14 @@ import { createContext, useState } from "react";
 const GeneralContext = createContext();
 
 const GeneralContextProvider = ({ children }) => {
+  //User
   const [user, setUser] = useState(null);
+  //Lists
   const postTypes = ["Notes", "Previous Year Papers", "Others"];
   const departments = [
     "Computer Science",
     "Physics",
-    "Chemestry",
+    "Chemistry",
     "Zoology",
     "Electronics",
     "Math",
@@ -17,6 +19,15 @@ const GeneralContextProvider = ({ children }) => {
     "Others",
   ];
   const semesters = ["1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th"];
+  //Batch year lists
+  const currYear = new Date().getFullYear();
+  const lastYear = currYear + 5;
+  const startYear = currYear - 15;
+
+  const years = [];
+  for (let year = startYear; year <= lastYear; year++) {
+    years.push(year);
+  }
   return (
     <GeneralContext.Provider
       value={{
@@ -25,6 +36,7 @@ const GeneralContextProvider = ({ children }) => {
         postTypes,
         departments,
         semesters,
+        years,
       }}
     >
       {children}

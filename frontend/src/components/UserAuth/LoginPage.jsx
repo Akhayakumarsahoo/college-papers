@@ -22,7 +22,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { toast } from "../../hooks/use-toast.js";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import AxiosInstance from "@/api/AxiosInstance.js";
 import { LogIn } from "lucide-react";
 import useValues from "@/hooks/useValues.js";
@@ -38,8 +38,6 @@ const formSchema = z.object({
 
 export default function LoginPage() {
   const navigate = useNavigate();
-  const location = useLocation();
-  const from = location.state?.from?.pathname || "/";
   const { setUser } = useValues();
   const [open, setOpen] = useState(false);
 
@@ -64,12 +62,8 @@ export default function LoginPage() {
         title: data.message,
       });
       setOpen(false);
-      navigate(from, { replace: true });
+      navigate("/");
     } catch (error) {
-      // toast({
-      //   title: error.response.data.message,
-      //   variant: "destructive",
-      // });
       console.error("Error logging in", error);
     }
   }
