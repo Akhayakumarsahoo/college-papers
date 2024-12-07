@@ -5,8 +5,6 @@ import ApiResponse from "../utils/apiResponse.js";
 import ApiError from "../utils/apiError.js";
 
 const allPosts = asyncHandler(async (req, res) => {
-  console.log(req.query);
-
   const { page = 1, limit = 10 } = req.query;
   const pageNum = parseInt(page, 10);
   const limitNum = parseInt(limit, 10);
@@ -19,7 +17,6 @@ const allPosts = asyncHandler(async (req, res) => {
       path: "owner",
       select: "-password -refreshToken",
     });
-  console.log(posts);
 
   const updatedPosts = posts.map((post) => ({
     ...post.toObject(),
