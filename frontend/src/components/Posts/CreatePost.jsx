@@ -22,9 +22,10 @@ import {
 } from "@/components/ui/select";
 import { toast } from "@/hooks/use-toast.js";
 import { useNavigate } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import AxiosInstance from "@/api/AxiosInstance";
 import useValues from "@/hooks/useValues";
+import { Loader2 } from "lucide-react";
 
 // Validation Schema
 const formSchema = z.object({
@@ -57,6 +58,7 @@ export default function CreatePost() {
     },
   });
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (!user) {
@@ -69,6 +71,7 @@ export default function CreatePost() {
   }, [user, navigate]);
 
   async function onSubmit(values) {
+    setIsLoading(true);
     const formData = new FormData();
     formData.append("title", values.title);
     formData.append("description", values.description || "");
@@ -89,7 +92,8 @@ export default function CreatePost() {
         form.reset();
         navigate("/posts");
       })
-      .catch((error) => console.error("Error creating post", error));
+      .catch((error) => console.error("Error creating post", error))
+      .finally(() => setIsLoading(false));
   }
 
   return (
@@ -244,7 +248,6 @@ export default function CreatePost() {
                   <FormControl>
                     <Input
                       type="file"
-                      multiple
                       onChange={(e) => field.onChange(e.target.files)}
                       accept="application/pdf, image/*"
                     />
@@ -256,7 +259,14 @@ export default function CreatePost() {
                 </FormItem>
               )}
             />
-            <Button type="submit">Create Post</Button>
+            {isLoading ? (
+              <Button disabled>
+                <Loader2 className="animate-spin" />
+                Creating...
+              </Button>
+            ) : (
+              <Button type="submit">Create Post</Button>
+            )}
           </form>
         </Form>
       </div>

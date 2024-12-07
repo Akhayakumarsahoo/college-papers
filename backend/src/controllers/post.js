@@ -5,17 +5,21 @@ import ApiResponse from "../utils/apiResponse.js";
 import ApiError from "../utils/apiError.js";
 
 const allPosts = asyncHandler(async (req, res) => {
-  // const page = parseInt(req.query.page, 10) || 1;
-  // const limit = parseInt(req.query.limit, 10) || 10;
-  // const skip = (page - 1) * limit;
+  console.log(req.query);
+
+  const { page = 1, limit = 10 } = req.query;
+  const pageNum = parseInt(page, 10);
+  const limitNum = parseInt(limit, 10);
+  const skip = (pageNum - 1) * limitNum;
   const posts = await Post.find()
     .sort({ createdAt: -1 })
-    // .skip(skip)
-    // .limit(limit)
+    .skip(skip)
+    .limit(limit)
     .populate({
       path: "owner",
       select: "-password -refreshToken",
     });
+  console.log(posts);
 
   const updatedPosts = posts.map((post) => ({
     ...post.toObject(),
@@ -30,18 +34,26 @@ const allPosts = asyncHandler(async (req, res) => {
   return res.status(200).json(new ApiResponse(200, "All posts", updatedPosts));
 });
 
-// const showCreatePost = asyncHandler(async (req, res) => {
-//   return res.status(200).json(new ApiResponse(200, "Create post page"));
-// });
-
 const createPost = asyncHandler(async (req, res) => {
   const { title, description, postType, department, semester, subject } =
     req.body;
-  const cloudFile = await uploadOnCloudinary(req.file?.path);
+  //Check all fields are filled
+  if (
+    [title, postType, department, semester, subject].some(
+      (field) => field?.trim() === ""
+    )
+  ) {
+    throw new ApiError(400, "All fields are required");
+  }
+  //Upload file
+  if (req.fileValidationError) throw new ApiError(400, req.fileValidationError);
+  if (!req.file) throw new ApiError(400, "File is required");
+
+  const cloudFile = await uploadOnCloudinary(req.file);
   if (!cloudFile)
     throw new ApiError(500, "Something went wrong while uploading file");
 
-  const { original_filename, secure_url, resource_type } = cloudFile;
+  const { original_filename, secure_url } = cloudFile;
   const owner = req.user._id;
 
   const post = await Post.create({
@@ -51,15 +63,13 @@ const createPost = asyncHandler(async (req, res) => {
     postType,
     file: {
       fileName: original_filename,
-      fileType: resource_type,
+      fileType: req.file.mimetype,
       url: secure_url,
     },
     department,
     semester,
     subject,
   });
-  console.log(post);
-
   res
     .status(201)
     .json(new ApiResponse(201, "Post created successfully 🎉", post));
@@ -105,9 +115,10 @@ const updatePost = asyncHandler(async (req, res) => {
     throw new ApiError(404, "Post not found");
   }
   // Update file
+  if (req.fileValidationError) throw new ApiError(400, req.fileValidationError);
   try {
     if (typeof req.file !== "undefined") {
-      const cloudFile = await uploadOnCloudinary(req.file.path);
+      const cloudFile = await uploadOnCloudinary(req.file);
       const { original_filename, secure_url, resource_type } = cloudFile;
 
       post.file = {

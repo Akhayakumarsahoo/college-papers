@@ -81,13 +81,13 @@ export default function Navbar() {
             ) : (
               <>
                 <DropdownMenuItem asChild>
-                  <Link to="/signup" className="flex items-center">
+                  <Link to="/signup" className="flex items-center pl-3">
                     {" "}
                     <UserPlus />
                     Sign Up
                   </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem onSelect={(event) => event.preventDefault()}>
+                <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
                   <LoginPage />
                 </DropdownMenuItem>
               </>

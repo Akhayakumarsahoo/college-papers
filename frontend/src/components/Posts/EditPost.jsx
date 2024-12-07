@@ -22,9 +22,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "@/hooks/use-toast.js";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import AxiosInstance from "@/api/AxiosInstance";
 import useValues from "@/hooks/useValues";
+import { Loader2 } from "lucide-react";
 
 const formSchema = z.object({
   title: z.string().min(2, { message: "Title must be at least 2 characters." }),
@@ -42,6 +43,7 @@ export default function EditPost() {
   const navigate = useNavigate();
   const { departments, postTypes, semesters } = useValues();
   const { id } = useParams();
+  const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm({
     resolver: zodResolver(formSchema),
@@ -70,6 +72,7 @@ export default function EditPost() {
   }, [id, form, navigate]);
 
   async function onSubmit(values) {
+    setIsLoading(true);
     const formData = new FormData();
     formData.append("title", values.title);
     formData.append("description", values.description || "");
@@ -90,7 +93,8 @@ export default function EditPost() {
         form.reset();
         navigate(`/posts/${id}`);
       })
-      .catch((error) => console.error("Error updating post", error));
+      .catch((error) => console.error("Error updating post", error))
+      .finally(() => setIsLoading(false));
   }
 
   return (
@@ -98,7 +102,7 @@ export default function EditPost() {
       <div className="max-w-2xl mx-auto">
         <h1 className="text-2xl font-bold mb-6">Edit Post</h1>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
             <FormField
               control={form.control}
               name="title"
@@ -107,6 +111,19 @@ export default function EditPost() {
                   <FormLabel>Title</FormLabel>
                   <FormControl>
                     <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Description</FormLabel>
+                  <FormControl>
+                    <Textarea className="min-h-[200px]" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -220,19 +237,6 @@ export default function EditPost() {
             />
             <FormField
               control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Description</FormLabel>
-                  <FormControl>
-                    <Textarea className="min-h-[200px]" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
               name="file"
               render={({ field }) => (
                 <FormItem>
@@ -240,7 +244,6 @@ export default function EditPost() {
                   <FormControl>
                     <Input
                       type="file"
-                      multiple
                       accept="application/pdf, image/*"
                       onChange={(e) => field.onChange(e.target.files)}
                     />
@@ -252,7 +255,23 @@ export default function EditPost() {
                 </FormItem>
               )}
             />
-            <Button type="submit">Update Post</Button>
+            <div className="flex justify-end space-x-4">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => navigate(`/posts/${id}`)}
+              >
+                Cancel
+              </Button>
+              {isLoading ? (
+                <Button type="submit" disabled>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Saving...
+                </Button>
+              ) : (
+                <Button type="submit">Save</Button>
+              )}
+            </div>
           </form>
         </Form>
       </div>

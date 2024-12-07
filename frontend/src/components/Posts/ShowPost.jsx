@@ -5,10 +5,11 @@ import {
   BookOpen,
   Download,
   EllipsisVertical,
-  Pencil,
   Copy,
   CopyCheck,
   Trash,
+  SquarePen,
+  Loader2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -42,6 +43,7 @@ import {
 import AxiosInstance from "@/api/AxiosInstance";
 import NotFoundPage from "../NotFoundPage";
 import useValues from "@/hooks/useValues";
+import { Avatar, AvatarFallback } from "../ui/avatar";
 
 export default function ShowPost() {
   const navigate = useNavigate();
@@ -50,6 +52,7 @@ export default function ShowPost() {
   const { id } = useParams();
   const [isOwner, setIsOwner] = useState(false);
   const [notFound, setNotFound] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
   useEffect(() => {
     (async () => {
       await AxiosInstance.get(`/posts/${id}`)
@@ -76,17 +79,21 @@ export default function ShowPost() {
   };
 
   const handleDeletePost = async () => {
+    setIsDownloading(true);
     await AxiosInstance.delete(`/posts/${id}`)
       .then(() => {
         setPost({});
-        navigate("/posts");
       })
-      .catch((error) => console.log("Error deleting post", error));
+      .catch((error) => console.log("Error deleting post", error))
+      .finally(() => {
+        setIsDownloading(false);
+        navigate("/posts");
+      });
   };
 
   if (notFound) return <NotFoundPage />;
   return (
-    <div className="container mx-auto md:px-4 md:py-4">
+    <div className="container mx-auto md:px-4 md:py-4 min-h-screen">
       <Card className="max-w-lg mx-auto">
         <CardHeader>
           <div className="flex justify-between">
@@ -94,9 +101,20 @@ export default function ShowPost() {
               <CardTitle className="max-w-[250px] md:max-w-[350px] truncate">
                 {post.title}
               </CardTitle>
-              <div className="flex gap-4">
+              <div className="flex gap-4 pt-2">
                 <div className="flex items-center text-sm text-muted-foreground">
-                  <User className="h-4 w-4 mr-1" />
+                  {user ? (
+                    <Avatar className="w-6 h-6 mr-1 text-xs font-semibold">
+                      <AvatarFallback>
+                        {user.fullName
+                          .split(" ")
+                          .map((n) => n[0])
+                          .join("")}
+                      </AvatarFallback>
+                    </Avatar>
+                  ) : (
+                    <User className="h-6 w-6" />
+                  )}
                   {post.owner?.fullName}
                 </div>
                 <div className="flex items-center text-sm text-muted-foreground">
@@ -134,7 +152,7 @@ export default function ShowPost() {
                   <>
                     <DropdownMenuItem asChild>
                       <Link to={`edit`}>
-                        <Pencil />
+                        <SquarePen />
                         Edit Post
                       </Link>
                     </DropdownMenuItem>
@@ -162,7 +180,14 @@ export default function ShowPost() {
                               className="bg-red-500 text-white"
                               onClick={() => handleDeletePost(post.id)}
                             >
-                              Delete
+                              {isDownloading ? (
+                                <>
+                                  <Loader2 className="animate-spin" />
+                                  Downloading...
+                                </>
+                              ) : (
+                                <>Delete</>
+                              )}
                             </AlertDialogAction>
                           </AlertDialogFooter>
                         </AlertDialogContent>

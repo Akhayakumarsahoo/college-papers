@@ -1,5 +1,4 @@
 import multer from "multer";
-import ApiError from "../utils/apiError.js";
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, "./public/temp");
@@ -16,12 +15,14 @@ const fileFilter = (req, file, cb) => {
   ) {
     cb(null, true);
   } else {
-    cb(new ApiError("Invalid file type"), false);
+    req.fileValidationError =
+      "Invalid file type. Only images and PDFs are allowed.";
+    cb(null, false);
   }
 };
 
 export const upload = multer({
   storage,
   fileFilter,
-  limits: { fileSize: 1024 * 1024 * 5 },
+  limits: { fileSize: 1024 * 1024 * 10 }, // 10MB
 });

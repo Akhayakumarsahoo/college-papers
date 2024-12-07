@@ -14,16 +14,16 @@ const uploadOnCloudinary = async function (localFilePath) {
   try {
     if (!localFilePath) return null;
 
-    const uploadResult = await cloudinary.uploader.upload(localFilePath, {
+    const isPDF = localFilePath.mimetype === "application/pdf";
+    const uploadResult = await cloudinary.uploader.upload(localFilePath.path, {
       folder: "college-papers",
-      resource_type: "auto",
+      resource_type: isPDF ? "raw" : "image",
     });
-    // console.log("File is uploaded successfully", uploadResult);
 
-    fs.unlinkSync(localFilePath);
+    fs.unlinkSync(localFilePath.path);
     return uploadResult;
   } catch (error) {
-    fs.unlinkSync(localFilePath);
+    fs.unlinkSync(localFilePath.path);
     console.log("Cloudinary Error", error);
     return null;
   }

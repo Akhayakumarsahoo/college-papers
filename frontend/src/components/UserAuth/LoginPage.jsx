@@ -24,7 +24,7 @@ import { Input } from "@/components/ui/input";
 import { toast } from "../../hooks/use-toast.js";
 import { Link, useNavigate } from "react-router-dom";
 import AxiosInstance from "@/api/AxiosInstance.js";
-import { LogIn } from "lucide-react";
+import { Loader2, LogIn } from "lucide-react";
 import useValues from "@/hooks/useValues.js";
 
 const formSchema = z.object({
@@ -40,6 +40,7 @@ export default function LoginPage() {
   const navigate = useNavigate();
   const { setUser } = useValues();
   const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const form = useForm({
     resolver: zodResolver(formSchema),
@@ -50,6 +51,7 @@ export default function LoginPage() {
   });
 
   async function onSubmit(values) {
+    setLoading(true);
     try {
       const { data } = await AxiosInstance.post("/users/login", {
         ...values,
@@ -65,6 +67,8 @@ export default function LoginPage() {
       navigate("/");
     } catch (error) {
       console.error("Error logging in", error);
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -112,7 +116,14 @@ export default function LoginPage() {
               )}
             />
             <DialogFooter>
-              <Button type="submit">Log In</Button>
+              {loading ? (
+                <Button disabled type="submit">
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Logging in...
+                </Button>
+              ) : (
+                <Button type="submit">Login</Button>
+              )}
             </DialogFooter>
           </form>
         </Form>

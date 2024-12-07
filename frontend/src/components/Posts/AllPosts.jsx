@@ -34,12 +34,11 @@ import {
 } from "@/components/ui/sheet";
 import { Checkbox } from "@/components/ui/checkbox";
 import moment from "moment";
-import { useNavigate } from "react-router-dom";
 import AxiosInstance from "@/api/AxiosInstance";
 import useValues from "@/hooks/useValues";
+import { Avatar, AvatarFallback } from "../ui/avatar";
 
 export default function AllPosts() {
-  const navigate = useNavigate();
   const { departments, postTypes, semesters } = useValues();
   const [posts, setPosts] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -48,17 +47,45 @@ export default function AllPosts() {
     department: [],
     semester: [],
   });
+  const [page, setPage] = useState(1);
+  const [isLoading, setIsLoading] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
 
   useEffect(() => {
     (async () => {
+      if (isLoading || !hasMore) return;
+      setIsLoading(true);
       try {
-        const { data } = await AxiosInstance.get("/posts");
-        setPosts(data.data);
+        const { data } = await AxiosInstance.get(
+          `/posts?page=${page}&limit=10`
+        );
+        const newPosts = data.data;
+        setPosts((prevPosts) => [...prevPosts, ...newPosts]);
+        setHasMore(newPosts.length > 0);
+        setPage((prevPage) => prevPage + 1);
       } catch (error) {
         console.error("Error fetching posts:", error);
+      } finally {
+        setIsLoading(false);
       }
     })();
-  }, [setPosts, navigate]);
+  }, [page, isLoading, hasMore]);
+
+  const handleScroll = () => {
+    const bottom =
+      window.innerHeight + document.documentElement.scrollTop ===
+      document.documentElement.offsetHeight;
+    if (bottom && hasMore && !isLoading) {
+      setPage((prevPage) => prevPage + 1);
+    }
+  };
+
+  useEffect(() => {
+    window.addEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
 
   const handleFilterChange = (category, item) => {
     setFilters((prevFilters) => ({
@@ -199,28 +226,11 @@ export default function AllPosts() {
                               loading="lazy"
                               className=""
                             />
-                          ) : post.file.fileType.endsWith(".pdf") ? (
-                            // Render PDF in iframe
-                            <image
-                              src={`${post.file.url}`}
-                              // style={{
-                              //   width: "100%",
-                              //   height: "500px",
-                              //   border: "none",
-                              // }}
-                              // title="PDF Viewer"
-                              alt="File"
-                              loading="lazy"
-                            />
+                          ) : post.file.fileType.includes("application/pdf") ? (
+                            <span>PDF</span>
                           ) : (
                             // Fallback for unsupported file types
-                            <a
-                              href={post.file.url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                            >
-                              Download File
-                            </a>
+                            <span>Unsupported file type</span>
                           )}
                         </>
                       )}
@@ -230,8 +240,21 @@ export default function AllPosts() {
                       Sub: {post.subject}
                     </p>
                     <div className="flex items-center text-xs text-muted-foreground">
-                      <User className="h-4 w-4 mr-1" />
-                      {post.owner?.fullName}
+                      <div className="flex items-center">
+                        {post.owner?.fullName ? (
+                          <Avatar className="w-6 h-6 mr-1 text-xs">
+                            <AvatarFallback>
+                              {post.owner?.fullName
+                                .split(" ")
+                                .map((n) => n[0])
+                                .join("")}
+                            </AvatarFallback>
+                          </Avatar>
+                        ) : (
+                          <User className="h-6 w-6" />
+                        )}
+                        {post.owner?.fullName}
+                      </div>
                       <Calendar className="h-4 w-4 ml-2 mr-1" />
                       {moment(post.createdAt).fromNow()}
                     </div>

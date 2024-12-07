@@ -43,6 +43,7 @@ app.use(
 import userRouter from "./routes/user.js";
 import postsRouter from "./routes/post.js";
 import ApiError from "./utils/apiError.js";
+import multer from "multer";
 
 app.use("/api/users", userRouter);
 app.use("/api/posts", postsRouter);
@@ -54,6 +55,14 @@ app.use((err, req, res, next) => {
       message: err.message,
       errors: err.errors,
     });
+  } else if (err instanceof multer.MulterError) {
+    if (err.code === "LIMIT_FILE_SIZE") {
+      return res.status(400).json({
+        success: false,
+        message: "File size is too large",
+        errors: [],
+      });
+    }
   }
   // Handle unexpected errors
   console.error(err); // Log for debugging

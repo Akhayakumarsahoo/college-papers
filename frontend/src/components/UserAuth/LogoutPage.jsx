@@ -14,17 +14,19 @@ import { LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import AxiosInstance from "@/api/AxiosInstance.js";
 import useValues from "@/hooks/useValues.js";
+import { useState } from "react";
 
 function LogoutPage() {
   const navigate = useNavigate();
   const { setUser } = useValues();
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleLogout = async () => {
+    setIsLoading(true);
     try {
       await AxiosInstance.post("/users/logout").then(({ data }) => {
         setUser(null);
         AxiosInstance.defaults.headers.common["Authorization"] = undefined;
-        navigate("/");
         toast({
           title: data.message,
         });
@@ -35,6 +37,9 @@ function LogoutPage() {
         variant: "destructive",
       });
       console.error(" Error logging out", error);
+    } finally {
+      setIsLoading(false);
+      navigate("/");
     }
   };
   return (
@@ -53,8 +58,19 @@ function LogoutPage() {
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction onClick={handleLogout}>Log out</AlertDialogAction>
+          {isLoading ? (
+            <>
+              <AlertDialogCancel disabled>Cancel</AlertDialogCancel>
+              <AlertDialogAction disabled>Logging out...</AlertDialogAction>
+            </>
+          ) : (
+            <>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={handleLogout}>
+                Log out
+              </AlertDialogAction>
+            </>
+          )}
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

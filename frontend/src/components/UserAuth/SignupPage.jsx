@@ -25,6 +25,8 @@ import { useNavigate } from "react-router-dom";
 
 import AxiosInstance from "@/api/AxiosInstance.js";
 import useValues from "@/hooks/useValues.js";
+import { useState } from "react";
+import { Loader2 } from "lucide-react";
 
 const formSchema = z.object({
   fullName: z.string().min(2, {
@@ -47,6 +49,7 @@ const formSchema = z.object({
 export default function SignupPage() {
   const naviagte = useNavigate();
   const { setUser, departments, years } = useValues();
+  const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm({
     resolver: zodResolver(formSchema),
@@ -60,6 +63,7 @@ export default function SignupPage() {
   });
 
   async function onSubmit(values) {
+    setIsLoading(true);
     try {
       const { data } = await AxiosInstance.post("/users/signup", { ...values });
       setUser(data.data.user);
@@ -72,6 +76,8 @@ export default function SignupPage() {
       naviagte("/");
     } catch (error) {
       console.error("Error signing up", error);
+    } finally {
+      setIsLoading(false);
     }
   }
 
@@ -185,9 +191,15 @@ export default function SignupPage() {
                 )}
               />
             </div>
-            <Button type="submit" className="w-full">
-              Sign Up
-            </Button>
+            {isLoading ? (
+              <Button disabled type="submit">
+                <Loader2 className="animate-spin mr-2" /> Signing in...
+              </Button>
+            ) : (
+              <Button type="submit" className="w-full">
+                Sign Up
+              </Button>
+            )}
           </form>
         </Form>
         <div className="text-sm space-x-2 flex">
