@@ -82,6 +82,7 @@ const showPost = asyncHandler(async (req, res) => {
     if (!post) {
       throw new ApiError(404, "Page not found");
     }
+
     return res.status(200).json(new ApiResponse(200, "Post found", post));
   } catch (error) {
     throw new ApiError(404, "Page not found");
@@ -132,6 +133,15 @@ const updatePost = asyncHandler(async (req, res) => {
   res.json(new ApiResponse(200, "Post updated successfully"));
 });
 
+const downloadPost = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const post = await Post.findById(id);
+  if (!post) {
+    throw new ApiError(404, "Post not found");
+  }
+  res.download(post.file.url);
+});
+
 const deletePost = asyncHandler(async (req, res) => {
   const { id } = req.params;
   const post = await Post.findByIdAndDelete(id);
@@ -143,4 +153,4 @@ const deletePost = asyncHandler(async (req, res) => {
   res.json(new ApiResponse(200, "Post deleted successfully"));
 });
 
-export { allPosts, createPost, showPost, updatePost, deletePost };
+export { allPosts, createPost, showPost, updatePost, downloadPost, deletePost };

@@ -49,10 +49,10 @@ if (!rootElement) throw new Error("Root element not found");
 
 // Render Application
 createRoot(rootElement).render(
-  <StrictMode>
-    <GeneralContextProvider>
-      <Routes />
-      <Toaster />
-    </GeneralContextProvider>
-  </StrictMode>
+  // <StrictMode>
+  <GeneralContextProvider>
+    <Routes />
+    <Toaster />
+  </GeneralContextProvider>
+  // </StrictMode>
 );

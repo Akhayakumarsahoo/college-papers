@@ -3,7 +3,6 @@ import {
   User,
   Calendar,
   BookOpen,
-  Download,
   EllipsisVertical,
   Copy,
   CopyCheck,
@@ -44,6 +43,7 @@ import AxiosInstance from "@/api/AxiosInstance";
 import NotFoundPage from "../NotFoundPage";
 import useValues from "@/hooks/useValues";
 import { Avatar, AvatarFallback } from "../ui/avatar";
+// import { Document, Page } from "react-pdf";
 
 export default function ShowPost() {
   const navigate = useNavigate();
@@ -52,7 +52,7 @@ export default function ShowPost() {
   const { id } = useParams();
   const [isOwner, setIsOwner] = useState(false);
   const [notFound, setNotFound] = useState(false);
-  const [isDownloading, setIsDownloading] = useState(false);
+  const [isDeleteing, setIsDeleteing] = useState(false);
   useEffect(() => {
     (async () => {
       await AxiosInstance.get(`/posts/${id}`)
@@ -65,7 +65,8 @@ export default function ShowPost() {
           console.error("Error fetching post", error);
         });
     })();
-  }, [id, user, navigate]);
+  }, [id, user]);
+  console.log(post.file?.url);
 
   const [copy, setCopy] = useState(false);
   const copyPath = (e) => {
@@ -79,14 +80,13 @@ export default function ShowPost() {
   };
 
   const handleDeletePost = async () => {
-    setIsDownloading(true);
+    setIsDeleteing(true);
     await AxiosInstance.delete(`/posts/${id}`)
       .then(() => {
         setPost({});
       })
       .catch((error) => console.log("Error deleting post", error))
       .finally(() => {
-        setIsDownloading(false);
         navigate("/posts");
       });
   };
@@ -103,10 +103,10 @@ export default function ShowPost() {
               </CardTitle>
               <div className="flex gap-4 pt-2">
                 <div className="flex items-center text-sm text-muted-foreground">
-                  {user ? (
+                  {post.owner ? (
                     <Avatar className="w-6 h-6 mr-1 text-xs font-semibold">
                       <AvatarFallback>
-                        {user.fullName
+                        {post.owner.fullName
                           .split(" ")
                           .map((n) => n[0])
                           .join("")}
@@ -180,10 +180,10 @@ export default function ShowPost() {
                               className="bg-red-500 text-white"
                               onClick={() => handleDeletePost(post.id)}
                             >
-                              {isDownloading ? (
+                              {isDeleteing ? (
                                 <>
                                   <Loader2 className="animate-spin" />
-                                  Downloading...
+                                  Deleting...
                                 </>
                               ) : (
                                 <>Delete</>
@@ -207,29 +207,27 @@ export default function ShowPost() {
                 {post.file.fileType.startsWith("image") ? (
                   // Render Image
                   <img
-                    src={`${post.file.url}`}
+                    src={post.file.url}
                     className="md:w-72"
                     alt="File"
                     loading="lazy"
                   />
-                ) : post.file.fileType.endsWith(".pdf") ? (
-                  // Render PDF in iframe
+                ) : post.file.fileType.includes("application/pdf") ? (
+                  // <Document file={post.file.url}>
+                  //   <Page pageNumber={1} />
+                  // </Document>
                   <iframe
-                    src={`${post.file.url}`}
-                    style={{ width: "100%", height: "500px", border: "none" }}
-                    title="PDF Viewer"
+                    src={post.file.url}
+                    className="w-full h-96"
+                    title="PDF"
                     loading="lazy"
-                    alt="File"
                   />
                 ) : (
-                  // Fallback for unsupported file types
-                  <a
-                    href={post.file.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    Download File
-                  </a>
+                  <>
+                    <p className="text-sm text-muted-foreground">
+                      Unsupported file type: {post.file.fileType}
+                    </p>
+                  </>
                 )}
               </>
             )}
@@ -247,17 +245,7 @@ export default function ShowPost() {
             <CardDescription className="">{post.description}</CardDescription>
           )}
         </CardContent>
-        <CardFooter className="flex justify-end">
-          {/* Download Button */}
-          {post.file && post.file.url && (
-            <Button asChild>
-              <a href={post.file.url} download={post.title}>
-                <Download className="h-4 w-4 mr-1" />
-                Download
-              </a>
-            </Button>
-          )}
-        </CardFooter>
+        <CardFooter className="flex justify-end"></CardFooter>
       </Card>
     </div>
   );

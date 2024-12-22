@@ -5,6 +5,7 @@ import {
   showPost,
   updatePost,
   deletePost,
+  downloadPost,
 } from "../controllers/post.js";
 import { verifyJWT, isOwner } from "../middlewares/auth.js";
 import { upload } from "../middlewares/multer.js";
@@ -24,4 +25,6 @@ router
   .delete(verifyJWT, isOwner, deletePost);
 
 router.route("/:id/edit").get(verifyJWT, isOwner, showPost);
+
+router.route("/:id/download").get(downloadPost);
 export default router;
