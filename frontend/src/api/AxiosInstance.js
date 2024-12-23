@@ -2,8 +2,10 @@ import axios from "axios";
 import { toast } from "@/hooks/use-toast.js";
 
 const AxiosInstance = axios.create({
-  baseURL: `https://college-papers-production.up.railway.app/api`,
-  // baseURL: `http://localhost:9000/api`,
+  baseURL:
+    import.meta.env.MODE === "development"
+      ? "http://localhost:9000/api"
+      : `${import.meta.env.VITE_SERVER_URL}/api`,
   withCredentials: true,
 });
 

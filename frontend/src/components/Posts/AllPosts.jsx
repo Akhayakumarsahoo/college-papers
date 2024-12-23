@@ -215,26 +215,6 @@ export default function AllPosts() {
               <Link key={post._id} to={`${post._id}`}>
                 <Card className="flex flex-col">
                   <CardHeader>
-                    <div className="flex justify-center">
-                      {post.file && post.file.fileType && (
-                        <>
-                          {post.file.fileType.startsWith("image") ? (
-                            // Render Image
-                            <img
-                              src={`${post.file.url}?w=150&h=150&crop=thumb`}
-                              alt="File"
-                              loading="lazy"
-                              className=""
-                            />
-                          ) : post.file.fileType.includes("application/pdf") ? (
-                            <span>PDF</span>
-                          ) : (
-                            // Fallback for unsupported file types
-                            <span>Unsupported file type</span>
-                          )}
-                        </>
-                      )}
-                    </div>
                     <CardTitle className="line-clamp-2">{post.title}</CardTitle>
                     <p className="text-xs text-muted-foreground">
                       Sub: {post.subject}

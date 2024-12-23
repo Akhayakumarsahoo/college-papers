@@ -6,9 +6,9 @@ const GeneralContextProvider = ({ children }) => {
   //User
   const [user, setUser] = useState(null);
   //Lists
-  const postTypes = ["Notes", "Previous Year Papers", "Others"];
+  const postTypes = ["Notes", "PYQs", "Others"];
   const departments = [
-    "Computer Science",
+    "Comp.Sc",
     "Physics",
     "Chemistry",
     "Zoology",

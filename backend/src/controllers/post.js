@@ -18,17 +18,7 @@ const allPosts = asyncHandler(async (req, res) => {
       select: "-password -refreshToken",
     });
 
-  const updatedPosts = posts.map((post) => ({
-    ...post.toObject(),
-    file: post.file
-      ? {
-          ...post.file,
-          url: post.file.url.replace("/upload", "/upload/h_100,w_150"),
-        }
-      : null,
-  }));
-
-  return res.status(200).json(new ApiResponse(200, "All posts", updatedPosts));
+  return res.status(200).json(new ApiResponse(200, "All posts", posts));
 });
 
 const createPost = asyncHandler(async (req, res) => {

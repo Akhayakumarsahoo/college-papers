@@ -16,7 +16,7 @@ const postSchema = new mongoose.Schema(
     },
     postType: {
       type: String,
-      enum: ["Previous Year Papers", "Notes", "Others"],
+      enum: ["PYQs", "Notes", "Others"],
       required: [true, "Post type is required"],
     },
     file: {
@@ -37,7 +37,7 @@ const postSchema = new mongoose.Schema(
       type: String,
       ref: "Department",
       enum: [
-        "Computer Science",
+        "Comp.Sc",
         "Physics",
         "Chemistry",
         "Zoology",

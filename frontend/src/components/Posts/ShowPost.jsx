@@ -66,7 +66,6 @@ export default function ShowPost() {
         });
     })();
   }, [id, user]);
-  console.log(post.file?.url);
 
   const [copy, setCopy] = useState(false);
   const copyPath = (e) => {
@@ -223,11 +222,9 @@ export default function ShowPost() {
                     loading="lazy"
                   />
                 ) : (
-                  <>
-                    <p className="text-sm text-muted-foreground">
-                      Unsupported file type: {post.file.fileType}
-                    </p>
-                  </>
+                  <p className="text-sm text-muted-foreground">
+                    Unsupported file type: {post.file.fileType}
+                  </p>
                 )}
               </>
             )}
