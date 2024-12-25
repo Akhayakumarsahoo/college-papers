@@ -17,6 +17,7 @@ const uploadOnCloudinary = async function (localFilePath) {
     const isPDF = localFilePath.mimetype === "application/pdf";
     const uploadResult = await cloudinary.uploader.upload(localFilePath.path, {
       folder: "college-papers",
+      public_id: localFilePath.filename,
       resource_type: isPDF ? "raw" : "image",
     });
 
@@ -29,4 +30,22 @@ const uploadOnCloudinary = async function (localFilePath) {
   }
 };
 
-export default uploadOnCloudinary;
+const deleteFromCloudinary = async function (publicId) {
+  try {
+    if (!publicId) {
+      return null;
+    }
+    // console.log("Deleting public ID:", publicId);
+    const deleteResult = await cloudinary.uploader.destroy(publicId, {
+      resource_type: "raw",
+      invalidate: true,
+    });
+    // console.log("Cloudinary Delete Result:", deleteResult);
+    return deleteResult;
+  } catch (error) {
+    console.error("Cloudinary Error:", error);
+    return null;
+  }
+};
+
+export { uploadOnCloudinary, deleteFromCloudinary };

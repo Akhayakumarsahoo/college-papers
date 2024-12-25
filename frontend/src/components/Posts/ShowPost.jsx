@@ -116,7 +116,7 @@ export default function ShowPost() {
                   )}
                   {post.owner?.fullName}
                 </div>
-                <div className="flex items-center text-sm text-muted-foreground">
+                <div className="flex items-center text-xs text-muted-foreground">
                   <Calendar className="h-4 w-4 mr-1" />
                   {moment(post.createdAt).fromNow()}
                 </div>

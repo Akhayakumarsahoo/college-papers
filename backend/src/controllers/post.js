@@ -1,14 +1,19 @@
 import Post from "../models/post.js";
 import asyncHandler from "../utils/asyncHandler.js";
-import uploadOnCloudinary from "../utils/clouldinary.js";
+import {
+  uploadOnCloudinary,
+  deleteFromCloudinary,
+} from "../utils/clouldinary.js";
 import ApiResponse from "../utils/apiResponse.js";
 import ApiError from "../utils/apiError.js";
 
 const allPosts = asyncHandler(async (req, res) => {
+  // Pagination
   const { page = 1, limit = 10 } = req.query;
   const pageNum = parseInt(page, 10);
   const limitNum = parseInt(limit, 10);
   const skip = (pageNum - 1) * limitNum;
+  // Get all posts
   const posts = await Post.find()
     .sort({ createdAt: -1 })
     .skip(skip)
@@ -32,17 +37,16 @@ const createPost = asyncHandler(async (req, res) => {
   ) {
     throw new ApiError(400, "All fields are required");
   }
-  //Upload file
   if (req.fileValidationError) throw new ApiError(400, req.fileValidationError);
   if (!req.file) throw new ApiError(400, "File is required");
-
+  // Upload file to Cloudinary
   const cloudFile = await uploadOnCloudinary(req.file);
   if (!cloudFile)
     throw new ApiError(500, "Something went wrong while uploading file");
 
   const { original_filename, secure_url } = cloudFile;
   const owner = req.user._id;
-
+  // Create post
   const post = await Post.create({
     title,
     description,
@@ -123,24 +127,38 @@ const updatePost = asyncHandler(async (req, res) => {
   res.json(new ApiResponse(200, "Post updated successfully"));
 });
 
-const downloadPost = asyncHandler(async (req, res) => {
+const deletePost = asyncHandler(async (req, res) => {
   const { id } = req.params;
+
   const post = await Post.findById(id);
   if (!post) {
     throw new ApiError(404, "Post not found");
   }
-  res.download(post.file.url);
-});
 
-const deletePost = asyncHandler(async (req, res) => {
-  const { id } = req.params;
-  const post = await Post.findByIdAndDelete(id);
+  // Extract the public ID
+  const path = post.file.url.split("/upload/")[1];
+  const publicId = path.substring(path.indexOf("/") + 1, path.lastIndexOf("."));
 
-  if (!post) {
-    throw new ApiError(404, "Post not found");
+  // Delete from Cloudinary
+  const deleteResult = await deleteFromCloudinary(publicId);
+
+  // Check Cloudinary deletion result
+  if (deleteResult?.result !== "ok") {
+    console.warn("Failed to delete file from Cloudinary:", deleteResult);
   }
+
+  // Delete the post from the database
+  await Post.findByIdAndDelete(id);
 
   res.json(new ApiResponse(200, "Post deleted successfully"));
 });
 
-export { allPosts, createPost, showPost, updatePost, downloadPost, deletePost };
+const getUserPosts = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const posts = await Post.find({ owner: id }).sort({ createdAt: -1 });
+
+  if (!posts) throw new ApiError(404, "No posts found");
+  res.json(new ApiResponse(200, "User posts", posts));
+});
+
+export { allPosts, createPost, showPost, updatePost, deletePost, getUserPosts };

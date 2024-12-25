@@ -28,7 +28,7 @@ export default function HomePage() {
                 </p>
               </div>
 
-              <div className="flex flex-col sm:flex-row gap-1 mt-6 lg:pt-20">
+              <div className="flex flex-col sm:flex-row gap-1 mt-6 lg:pt-28">
                 <Button
                   className="w-full sm:w-auto gap-2 hover:scale-105 transition-all duration-300"
                   size="lg"
@@ -53,7 +53,6 @@ export default function HomePage() {
           </div>
         </section>
       </main>
-      {/* <img src="mainbg.svg" alt="main background" sizes="cover" /> */}
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -36,6 +36,10 @@ import {
   SelectValue,
 } from "./ui/select.jsx";
 import AxiosInstance from "@/api/AxiosInstance.js";
+import { Link } from "react-router-dom";
+import { Separator } from "./ui/separator.jsx";
+import moment from "moment";
+import { Calendar } from "lucide-react";
 
 const formSchema = z.object({
   fullName: z.string().min(2, {
@@ -48,30 +52,12 @@ const formSchema = z.object({
     message: "Please select a department.",
   }),
 });
-// Mock posts data
-const userPosts = [
-  {
-    id: 1,
-    title: "Introduction to React Hooks",
-    postType: "Notes",
-    department: "Computer Science",
-    semester: "Fall 2023",
-    preview: "A comprehensive guide to using React Hooks in your projects...",
-  },
-  {
-    id: 2,
-    title: "Machine Learning Basics",
-    postType: "Essay",
-    department: "Computer Science",
-    semester: "Spring 2024",
-    preview: "Exploring the fundamental concepts of machine learning...",
-  },
-  // Add more mock posts as needed
-];
 
 export default function ProfilePage() {
   const [isEditing, setIsEditing] = useState(false);
+  const [userPosts, setUserPosts] = useState([]);
   const { user, setUser, departments, years } = useValues();
+
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -80,6 +66,29 @@ export default function ProfilePage() {
       department: user.department,
     },
   });
+
+  useEffect(() => {
+    async () => {
+      try {
+        const { data } = await AxiosInstance.get("/users/user-data");
+        setUser(data.data);
+        console.log(data.data);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+  }, [setUser]);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const { data } = await AxiosInstance.get(`/posts/user/${user._id}`);
+        setUserPosts(data.data);
+      } catch (error) {
+        console.error(error);
+      }
+    })();
+  }, [user]);
 
   async function onSubmit(values) {
     try {
@@ -232,31 +241,38 @@ export default function ProfilePage() {
           <Card>
             <CardHeader>
               <CardTitle>My Posts</CardTitle>
-              <CardDescription>
-                Here are the posts you&apos;ve created. Click on a post to edit
-                or view details.
-              </CardDescription>
             </CardHeader>
             <CardContent>
               <ScrollArea className="h-[400px] w-full rounded-md border p-4">
                 {userPosts.map((post) => (
-                  <div key={post.id} className="mb-4 last:mb-0">
-                    <h3 className="text-lg font-semibold">{post.title}</h3>
+                  <Link
+                    to={`/posts/${post._id}`}
+                    key={post._id}
+                    className="mb-4 last:mb-0"
+                  >
+                    <h3 className="text-lg font-semibold flex">
+                      {post.title}
+                      <div className="flex items-center text-xs pl-2 text-muted-foreground">
+                        <Calendar className="h-3 w-3 mr-1" />
+                        {moment(post.createdAt).fromNow()}
+                      </div>
+                    </h3>
+                    <p className="text-xs text-muted-foreground">
+                      Sub: {post.subject}
+                    </p>
                     <div className="flex space-x-2 my-1">
                       <Badge>{post.postType}</Badge>
                       <Badge variant="outline">{post.department}</Badge>
-                      <Badge variant="secondary">{post.semester}</Badge>
+                      <Badge variant="secondary">{post.semester} sem</Badge>
                     </div>
-                    <p className="text-sm text-muted-foreground">
-                      {post.preview}
-                    </p>
-                  </div>
+                    <Separator />
+                  </Link>
                 ))}
               </ScrollArea>
             </CardContent>
             <CardFooter>
               <Button asChild>
-                <a href="/create-post">Create New Post</a>
+                <Link to={"/posts/create"}>Create New Post</Link>
               </Button>
             </CardFooter>
           </Card>

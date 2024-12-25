@@ -131,7 +131,6 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
   if (!incomingRefreshToken) {
     throw new ApiError(401, "Refresh token not found");
   }
-  // console.log(incomingRefreshToken);
 
   //Check if the refresh token is valid
   try {
