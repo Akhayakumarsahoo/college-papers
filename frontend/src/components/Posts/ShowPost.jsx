@@ -177,7 +177,7 @@ export default function ShowPost() {
                             <AlertDialogCancel>Cancel</AlertDialogCancel>
                             <AlertDialogAction
                               className="bg-red-500 text-white"
-                              onClick={() => handleDeletePost(post.id)}
+                              onClick={() => handleDeletePost()}
                             >
                               {isDeleteing ? (
                                 <>

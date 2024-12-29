@@ -68,7 +68,7 @@ export default function ProfilePage() {
   });
 
   useEffect(() => {
-    async () => {
+    (async () => {
       try {
         const { data } = await AxiosInstance.get("/users/user-data");
         setUser(data.data);
@@ -76,7 +76,7 @@ export default function ProfilePage() {
       } catch (error) {
         console.log(error);
       }
-    };
+    })();
   }, [setUser]);
 
   useEffect(() => {
