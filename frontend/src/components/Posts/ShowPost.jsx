@@ -43,7 +43,7 @@ import AxiosInstance from "@/api/AxiosInstance";
 import NotFoundPage from "../NotFoundPage";
 import useValues from "@/hooks/useValues";
 import { Avatar, AvatarFallback } from "../ui/avatar";
-// import { Document, Page } from "react-pdf";
+import PdfThumbnail from "./PdfComp";
 
 export default function ShowPost() {
   const navigate = useNavigate();
@@ -201,32 +201,12 @@ export default function ShowPost() {
         <CardContent>
           {/* Render File */}
           <div className="flex justify-center border-y">
-            {post.file && post.file.fileType && (
-              <>
-                {post.file.fileType.startsWith("image") ? (
-                  // Render Image
-                  <img
-                    src={post.file.url}
-                    className="md:w-72"
-                    alt="File"
-                    loading="lazy"
-                  />
-                ) : post.file.fileType.includes("application/pdf") ? (
-                  // <Document file={post.file.url}>
-                  //   <Page pageNumber={1} />
-                  // </Document>
-                  <iframe
-                    src={post.file.url}
-                    className="w-full h-96"
-                    title="PDF"
-                    loading="lazy"
-                  />
-                ) : (
-                  <p className="text-sm text-muted-foreground">
-                    Unsupported file type: {post.file.fileType}
-                  </p>
-                )}
-              </>
+            {post.file && (
+              <PdfThumbnail
+                pdfDataUrl={post.file.url}
+                width={400}
+                height={500}
+              />
             )}
           </div>
           <div className="flex flex-wrap gap-2 mt-4">
