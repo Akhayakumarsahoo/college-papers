@@ -5,7 +5,7 @@ const AxiosInstance = axios.create({
   baseURL:
     import.meta.env.MODE === "development"
       ? "http://localhost:9000/api"
-      : `https://college-papers-production.up.railway.app/api`,
+      : `https://college-papers.onrender.com/api`,
   withCredentials: true,
 });
 
